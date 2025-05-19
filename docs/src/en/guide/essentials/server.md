@@ -46,7 +46,7 @@ export default defineConfig(async () => {
             changeOrigin: true,
             rewrite: (path) => path.replace(/^\/api/, ''),
             // mock proxy
-            target: 'http://localhost:5320/api',
+            target: 'http://localhost:8081/api',
             ws: true,
           },
         },

@@ -1,15 +1,27 @@
+/*
+ * @Author: deaisry
+ * @Date: 2025-05-15 10:50:48
+ * @LastEditors: e deaisry@163.com
+ * @LastEditTime: 2025-05-16 10:52:38
+ * @FilePath: \vue-vben-admin\apps\backend-mock\utils\mock-data.ts
+ * @Description: 
+ * 
+ * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
+ */
 export interface UserInfo {
   id: number;
   password: string;
   realName: string;
   roles: string[];
   username: string;
+  userId:string;
   homePath?: string;
 }
 
 export const MOCK_USERS: UserInfo[] = [
   {
     id: 0,
+    userId:'admin',
     password: '123456',
     realName: 'Vben',
     roles: ['super'],
@@ -17,6 +29,7 @@ export const MOCK_USERS: UserInfo[] = [
   },
   {
     id: 1,
+    userId:'admin',
     password: '123456',
     realName: 'Admin',
     roles: ['admin'],
@@ -25,6 +38,7 @@ export const MOCK_USERS: UserInfo[] = [
   },
   {
     id: 2,
+    userId:'admin',
     password: '123456',
     realName: 'Jack',
     roles: ['user'],

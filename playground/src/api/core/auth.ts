@@ -1,3 +1,13 @@
+/*
+ * @Author: deaisry
+ * @Date: 2025-05-15 10:50:49
+ * @LastEditors: e deaisry@163.com
+ * @LastEditTime: 2025-05-16 09:07:08
+ * @FilePath: \vue-vben-admin\playground\src\api\core\auth.ts
+ * @Description:
+ *
+ * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
+ */
 import { baseRequestClient, requestClient } from '#/api/request';
 
 export namespace AuthApi {
@@ -22,7 +32,7 @@ export namespace AuthApi {
  * 登录
  */
 export async function loginApi(data: AuthApi.LoginParams) {
-  return requestClient.post<AuthApi.LoginResult>('/auth/login', data, {
+  return requestClient.post<AuthApi.LoginResult>('/userBasicInfo/login', data, {
     withCredentials: true,
   });
 }

@@ -1,3 +1,13 @@
+/*
+ * @Author: deaisry
+ * @Date: 2025-05-15 10:50:48
+ * @LastEditors: e deaisry@163.com
+ * @LastEditTime: 2025-05-19 18:01:04
+ * @FilePath: \vue-vben-admin\apps\web-ele\src\store\auth.ts
+ * @Description:
+ *
+ * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
+ */
 import type { Recordable, UserInfo } from '@vben/types';
 
 import { ref } from 'vue';
@@ -9,8 +19,7 @@ import { resetAllStores, useAccessStore, useUserStore } from '@vben/stores';
 
 import { ElNotification } from 'element-plus';
 import { defineStore } from 'pinia';
-
-import { getAccessCodesApi, getUserInfoApi, loginApi, logoutApi } from '#/api';
+import {getUserInfoApi, loginApi, logoutApi } from '#/api';
 import { $t } from '#/locales';
 
 export const useAuthStore = defineStore('auth', () => {
@@ -32,24 +41,29 @@ export const useAuthStore = defineStore('auth', () => {
     // 异步处理用户登录操作并获取 accessToken
     let userInfo: null | UserInfo = null;
     try {
+      // console.log('authLogin');
       loginLoading.value = true;
-      const { accessToken } = await loginApi(params);
-
+      const response = await loginApi(params);
+      const { accessToken } = response;
       // 如果成功获取到 accessToken
       if (accessToken) {
         // 将 accessToken 存储到 accessStore 中
         accessStore.setAccessToken(accessToken);
 
-        // 获取用户信息并存储到 accessStore 中
-        const [fetchUserInfoResult, accessCodes] = await Promise.all([
+        // // 获取用户信息并存储到 accessStore 中
+        // const [fetchUserInfoResult, accessCodes] = await Promise.all([
+        //   fetchUserInfo(response.userId),
+        //   getAccessCodesApi(),
+        // ])\
+        const [fetchUserInfoResult] = await Promise.all([
           fetchUserInfo(),
-          getAccessCodesApi(),
         ]);
+
 
         userInfo = fetchUserInfoResult;
 
         userStore.setUserInfo(userInfo);
-        accessStore.setAccessCodes(accessCodes);
+        // accessStore.setAccessCodes(accessCodes);
 
         if (accessStore.loginExpired) {
           accessStore.setLoginExpired(false);

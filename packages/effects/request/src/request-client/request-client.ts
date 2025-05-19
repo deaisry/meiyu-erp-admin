@@ -57,6 +57,7 @@ class RequestClient {
     const defaultConfig: RequestClientOptions = {
       headers: {
         'Content-Type': 'application/json;charset=utf-8',
+        // 'accessToken':'eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDc3MDIzNzksInVzZXJJZCI6ImFkbWluIn0.J8hCDiXpm96JP2SjVzGV44Ff_fMpz0UI8lss8K-cpRc'
       },
       responseReturn: 'raw',
       // 默认超时时间
