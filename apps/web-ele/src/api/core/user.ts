@@ -20,6 +20,5 @@ export namespace UserApi {
  * 获取用户信息
  */
 export async function getUserInfoApi() {
-  debugger;
   return requestClient.get<UserInfo>('/userBasicInfo/info');
 }

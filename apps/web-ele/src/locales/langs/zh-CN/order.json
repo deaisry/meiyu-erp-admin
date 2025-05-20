@@ -1,0 +1,15 @@
+{
+  "title": "订单管理",
+  "product":"生产订单",
+  "sale":"销售订单",
+  "plastic": "注塑订单",
+  "mold": "模具订单",
+  "vben": {
+    "title": "项目",
+    "about": "关于",
+    "document": "文档",
+    "antdv": "Ant Design Vue 版本",
+    "naive-ui": "Naive UI 版本",
+    "element-plus": "Element Plus 版本"
+  }
+}

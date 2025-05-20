@@ -41,7 +41,7 @@ defineOptions({
 
 const props = withDefaults(defineProps<Props>(), {
   loading: false,
-  loginPath: '/userBasicInfo/login',
+  loginPath: '/auth/login',
   submitButtonText: '',
   subTitle: '',
   title: '',

@@ -44,7 +44,7 @@ defineOptions({
 const props = withDefaults(defineProps<Props>(), {
   formSchema: () => [],
   loading: false,
-  loginPath: '/userBasicInfo/login',
+  loginPath: '/auth/login',
   submitButtonText: '',
   subTitle: '',
   title: '',

@@ -2,6 +2,16 @@
  * @Author: deaisry
  * @Date: 2025-05-15 10:50:49
  * @LastEditors: e deaisry@163.com
+ * @LastEditTime: 2025-05-20 09:27:31
+ * @FilePath: \vue-vben-admin\playground\src\api\core\auth.ts
+ * @Description:
+ *
+ * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
+ */
+/*
+ * @Author: deaisry
+ * @Date: 2025-05-15 10:50:49
+ * @LastEditors: e deaisry@163.com
  * @LastEditTime: 2025-05-16 09:07:08
  * @FilePath: \vue-vben-admin\playground\src\api\core\auth.ts
  * @Description:
