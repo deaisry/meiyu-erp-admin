@@ -41,9 +41,9 @@
     "@vben/types": "workspace:*",
     "@vben/utils": "workspace:*",
     "@vueuse/core": "catalog:",
+    "ant-design-vue": "catalog:",
     "dayjs": "catalog:",
     "element-plus": "catalog:",
-    "ant-design-vue": "catalog:",
     "pinia": "catalog:",
     "vue": "catalog:",
     "vue-router": "catalog:"

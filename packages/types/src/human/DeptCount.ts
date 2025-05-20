@@ -3,4 +3,4 @@ interface DeptCount {
   cnt: number;
   dept: string;
 }
-export type {DeptCount}
+export type { DeptCount };

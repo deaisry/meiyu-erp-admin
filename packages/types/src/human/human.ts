@@ -11,25 +11,26 @@
 // 人事信息主体
 interface HumanInfo {
   id: string;
-  attendanceId: string | null;
+  attendanceId: null | string;
   dept: string;
   cnName: string;
-  sex: '0' | '1'; // 根据数据示例 0/1 表示性别
+  sex: '0' | '1'; // 0-女，1-男
   idNbr: string;
   edu: string;
   nativePlace: string;
   ethnicGroup: string;
-  isMarried: '0' | '1'; // 根据数据示例 0/1 表示婚否
+  isMarried: '0' | '1'; // 0-未婚，1-已婚
   title: string;
   employeeType: string;
-  enterDate: string;
+  enterDate: string; // ISO 日期格式
   phone: string;
   address: string;
-  birthday: string;
-  createBy?: string | null;
-  updateBy?: string | null;
-  createTime: string;
-  updateTime: string;
-  pageNo?: number; // 分页参数（通常不需要在前端使用）
+  birthday: string; // ISO 日期格式
+  createBy: null | string;
+  updateBy: null | string;
+  createTime: string; // 日期时间格式
+  updateTime: string; // 日期时间格式
+  pageNo?: number; // 分页参数（可选）
   pageSize?: number;
-}export type {HumanInfo}
+}
+export type { HumanInfo };

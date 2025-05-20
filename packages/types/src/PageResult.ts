@@ -16,10 +16,13 @@ interface PageResult<T> {
   current: number;
   orders: any[];
   optimizeCountSql: boolean;
-  hitCount: boolean;
-  countId: string | null;
-  maxLimit: number | null;
-  searchCount: boolean;
+  hitCount?: boolean;
+  countId?: string;
+  maxLimit?: number;
+  searchCount?: boolean;
   pages: number;
+  success: boolean;
+  state: string;
+  page: T[];
 }
 export type { PageResult };

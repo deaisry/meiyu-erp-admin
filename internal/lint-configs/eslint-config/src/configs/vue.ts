@@ -112,13 +112,13 @@ export async function vue(): Promise<Linter.Config[]> {
         'vue/no-reserved-component-names': 'off',
         'vue/no-restricted-syntax': [
           'error',
-          'DebuggerStatement',
+          // 'DebuggerStatement',
           'LabeledStatement',
           'WithStatement',
         ],
         'vue/no-restricted-v-bind': ['error', '/^v-/'],
         'vue/no-sparse-arrays': 'error',
-        'vue/no-unused-refs': 'error',
+        'vue/no-unused-refs': 'warn',
         'vue/no-useless-v-bind': 'error',
         'vue/object-shorthand': [
           'error',

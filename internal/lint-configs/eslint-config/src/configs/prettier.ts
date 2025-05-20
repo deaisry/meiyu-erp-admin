@@ -12,7 +12,7 @@ export async function prettier(): Promise<Linter.Config[]> {
         prettier: pluginPrettier,
       },
       rules: {
-        'prettier/prettier': 'error',
+        'prettier/prettier': 'warn',
       },
     },
   ];

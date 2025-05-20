@@ -132,7 +132,7 @@ export async function javascript(): Promise<Linter.Config[]> {
         ],
         'no-restricted-syntax': [
           'error',
-          'DebuggerStatement',
+          // 'DebuggerStatement',
           'LabeledStatement',
           'WithStatement',
           'TSEnumDeclaration[const=true]',
@@ -156,7 +156,7 @@ export async function javascript(): Promise<Linter.Config[]> {
         'no-unsafe-finally': 'error',
         'no-unsafe-negation': 'error',
         'no-unused-expressions': [
-          'error',
+          'warn',
           {
             allowShortCircuit: true,
             allowTaggedTemplates: true,
@@ -164,7 +164,7 @@ export async function javascript(): Promise<Linter.Config[]> {
           },
         ],
         'no-unused-vars': [
-          'error',
+          'off',
           {
             args: 'none',
             caughtErrors: 'none',

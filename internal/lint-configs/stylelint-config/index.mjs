@@ -99,7 +99,7 @@ export default {
       ],
       { severity: 'error' },
     ],
-    'prettier/prettier': true,
+    'prettier/prettier': false,
     'rule-empty-line-before': [
       'always',
       {

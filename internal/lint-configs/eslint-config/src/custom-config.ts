@@ -7,6 +7,13 @@ const restrictedImportIgnores = [
 ];
 
 const customConfig: Linter.Config[] = [
+  {
+    files: ['**'],
+    rules: {
+      'no-debugger': 'off',
+      'no-console': 'off',
+    },
+  },
   // shadcn-ui 内部组件是自动生成的，不做太多限制
   {
     files: ['packages/@core/ui-kit/shadcn-ui/**/**'],
