@@ -1,117 +1,127 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
+import type { VbenFormProps } from '#/adapter/form';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
 import { Page } from '@vben/common-ui';
 
-import {
-  ElButton,
-  ElCard,
-  ElMessage,
-  ElNotification,
-  ElSegmented,
-  ElSpace,
-  ElTable,
-} from 'element-plus';
+import { message } from 'ant-design-vue';
+import dayjs from 'dayjs';
 
-type NotificationType = 'error' | 'info' | 'success' | 'warning';
+import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { getExampleTableApi } from '#/api';
 
-function info() {
-  ElMessage.info('How many roads must a man walk down');
+interface RowType {
+  category: string;
+  color: string;
+  id: string;
+  price: string;
+  productName: string;
+  releaseDate: string;
 }
 
-function error() {
-  ElMessage.error({
-    duration: 2500,
-    message: 'Once upon a time you dressed so fine',
-  });
-}
+const formOptions: VbenFormProps = {
+  // 默认展开
+  collapsed: false,
+  fieldMappingTime: [['date', ['start', 'end']]],
+  schema: [
+    {
+      component: 'Input',
+      defaultValue: '1',
+      fieldName: 'category',
+      label: 'Category',
+    },
+    {
+      component: 'Input',
+      fieldName: 'productName',
+      label: 'ProductName',
+    },
+    {
+      component: 'Input',
+      fieldName: 'price',
+      label: 'Price',
+    },
+    {
+      component: 'Select',
+      componentProps: {
+        allowClear: true,
+        options: [
+          {
+            label: 'Color1',
+            value: '1',
+          },
+          {
+            label: 'Color2',
+            value: '2',
+          },
+        ],
+        placeholder: '请选择',
+      },
+      fieldName: 'color',
+      label: 'Color',
+    },
+    {
+      component: 'RangePicker',
+      defaultValue: [dayjs().subtract(7, 'days'), dayjs()],
+      fieldName: 'date',
+      label: 'Date',
+    },
+  ],
+  // 控制表单是否显示折叠按钮
+  showCollapseButton: true,
+  // 是否在字段值改变时提交表单
+  submitOnChange: true,
+  // 按下回车时是否提交表单
+  submitOnEnter: false,
+};
 
-function warning() {
-  ElMessage.warning('How many roads must a man walk down');
-}
-function success() {
-  ElMessage.success(
-    'Cause you walked hand in hand With another man in my place',
-  );
-}
+const gridOptions: VxeTableGridOptions<RowType> = {
+  checkboxConfig: {
+    highlight: true,
+    labelField: 'name',
+  },
+  columns: [
+    { title: '序号', type: 'seq', width: 50 },
+    { align: 'left', title: 'Name', type: 'checkbox', width: 100 },
+    { field: 'category', title: 'Category' },
+    { field: 'color', title: 'Color' },
+    { field: 'productName', title: 'Product Name' },
+    { field: 'price', title: 'Price' },
+    { field: 'releaseDate', formatter: 'formatDateTime', title: 'Date' },
+  ],
+  exportConfig: {},
+  height: 'auto',
+  keepSource: true,
+  pagerConfig: {},
+  proxyConfig: {
+    ajax: {
+      query: async ({ page }, formValues) => {
+        message.success(`Query params: ${JSON.stringify(formValues)}`);
+        return await getExampleTableApi({
+          page: page.currentPage,
+          pageSize: page.pageSize,
+          ...formValues,
+        });
+      },
+    },
+  },
+  toolbarConfig: {
+    custom: true,
+    export: true,
+    refresh: true,
+    resizable: true,
+    search: true,
+    zoom: true,
+  },
+};
 
-function notify(type: NotificationType) {
-  ElNotification({
-    duration: 2500,
-    message: '说点啥呢',
-    type,
-  });
-}
-const tableData = [
-  { prop1: '1', prop2: 'A' },
-  { prop1: '2', prop2: 'B' },
-  { prop1: '3', prop2: 'C' },
-  { prop1: '4', prop2: 'D' },
-  { prop1: '5', prop2: 'E' },
-  { prop1: '6', prop2: 'F' },
-];
-
-const segmentedValue = ref('Mon');
-
-const segmentedOptions = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const [Grid] = useVbenVxeGrid({
+  formOptions,
+  gridOptions,
+});
 </script>
 
 <template>
-  <Page
-    description="支持多语言，主题功能集成切换等"
-    title="Element Plus组件使用演示"
-  >
-    <div class="flex flex-wrap gap-5">
-      <ElCard class="mb-5 w-auto">
-        <template #header> 按钮 </template>
-        <ElSpace>
-          <ElButton text>Text</ElButton>
-          <ElButton>Default</ElButton>
-          <ElButton type="primary"> Primary </ElButton>
-          <ElButton type="info"> Info </ElButton>
-          <ElButton type="success"> Success </ElButton>
-          <ElButton type="warning"> Warning </ElButton>
-          <ElButton type="danger"> Error </ElButton>
-        </ElSpace>
-      </ElCard>
-      <ElCard class="mb-5 w-80">
-        <template #header> Message </template>
-        <ElSpace>
-          <ElButton type="info" @click="info"> 信息 </ElButton>
-          <ElButton type="danger" @click="error"> 错误 </ElButton>
-          <ElButton type="warning" @click="warning"> 警告 </ElButton>
-          <ElButton type="success" @click="success"> 成功 </ElButton>
-        </ElSpace>
-      </ElCard>
-      <ElCard class="mb-5 w-80">
-        <template #header> Notification </template>
-        <ElSpace>
-          <ElButton type="info" @click="notify('info')"> 信息 </ElButton>
-          <ElButton type="danger" @click="notify('error')"> 错误 </ElButton>
-          <ElButton type="warning" @click="notify('warning')"> 警告 </ElButton>
-          <ElButton type="success" @click="notify('success')"> 成功 </ElButton>
-        </ElSpace>
-      </ElCard>
-      <ElCard class="mb-5 w-auto">
-        <template #header> Segmented </template>
-        <ElSegmented
-          v-model="segmentedValue"
-          :options="segmentedOptions"
-          size="large"
-        />
-      </ElCard>
-      <ElCard class="mb-5 w-80">
-        <template #header> V-Loading </template>
-        <div class="flex size-72 items-center justify-center" v-loading="true">
-          一些演示的内容
-        </div>
-      </ElCard>
-      <ElCard class="mb-5 w-80">
-        <ElTable :data="tableData" stripe>
-          <ElTable.TableColumn label="测试列1" prop="prop1" />
-          <ElTable.TableColumn label="测试列2" prop="prop2" />
-        </ElTable>
-      </ElCard>
-    </div>
+  <Page auto-content-height>
+    <Grid />
   </Page>
 </template>

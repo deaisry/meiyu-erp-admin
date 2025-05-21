@@ -1,98 +1,98 @@
 <script lang="ts" setup>
-import type { VxeGridProps } from '#/adapter/vxe-table';
-import { message } from 'ant-design-vue';
+import type { HumanInfo } from '@vben/types';
 
-import { useVbenForm } from '#/adapter/form';
-import { Button } from 'ant-design-vue';
-import type { HumanInfo } from '@vben/types'
+import type { VbenFormProps } from '#/adapter/form';
+import type { VxeGridProps } from '#/adapter/vxe-table';
+
+import { Page } from '@vben/common-ui';
+
+import dayjs from 'dayjs';
+
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { fetchHumanList } from '#/api/human/human';
 
-
-const [QueryForm] = useVbenForm({
-  // 默认展开
-  collapsed: false,
-  // 所有表单项共用，可单独在表单内覆盖
-  commonConfig: {
-    // 所有表单项
-    componentProps: {
-      class: 'w-full',
-    },
-  },
-  // 提交函数
-  handleSubmit: onSubmit,
-  // 垂直布局，label和input在不同行，值为vertical
-  // 水平布局，label和input在同一行
-  layout: 'horizontal',
+const formOptions: VbenFormProps = {
+  // 默认收起
+  collapsed: true,
+  fieldMappingTime: [['date', ['start', 'end']]],
   schema: [
     {
-      // 组件需要在 #/adapter.ts内注册，并加上类型
       component: 'Input',
-      // 对应组件的参数
-      componentProps: {
-        placeholder: '请输入用户名',
-      },
-      // 字段名
-      fieldName: 'username',
-      // 界面显示的label
-      label: '字符串',
-    },
-    {
-      component: 'InputPassword',
-      componentProps: {
-        placeholder: '请输入密码',
-      },
-      fieldName: 'password',
-      label: '密码',
-    },
-    {
-      component: 'InputNumber',
-      componentProps: {
-        placeholder: '请输入',
-      },
-      fieldName: 'number',
-      label: '数字(带后缀)',
-      suffix: () => '¥',
+      defaultValue: '',
+      fieldName: 'cnName',
+      label: '姓名',
     },
     {
       component: 'Select',
       componentProps: {
         allowClear: true,
-        filterOption: true,
         options: [
           {
-            label: '选项1',
+            label: '总经办',
             value: '1',
           },
           {
-            label: '选项2',
+            label: '业务部',
             value: '2',
           },
         ],
         placeholder: '请选择',
-        showSearch: true,
       },
-      fieldName: 'options',
-      label: '下拉选',
+      fieldName: 'dept',
+      label: '部门',
     },
     {
-      component: 'DatePicker',
-      fieldName: 'datePicker',
-      label: '日期选择框',
+      component: 'Select',
+      fieldName: 'sex',
+      label: '性别',
+      componentProps: {
+        allowClear: true,
+        options: [
+          {
+            label: '男',
+            value: '1',
+          },
+          {
+            label: '女',
+            value: '0',
+          },
+        ],
+        placeholder: '请选择',
+      },
     },
+    {
+      component: 'Select',
+      fieldName: 'employeeType',
+      label: '用工性质',
+      componentProps: {
+        allowClear: true,
+        options: [
+          {
+            label: '正式工',
+            value: '1',
+          },
+          {
+            label: '临时工',
+            value: '0',
+          },
+        ],
+        placeholder: '请选择',
+      },
+    },
+    // {
+    //   component: 'DatePicker',
+    //   defaultValue: [dayjs().subtract(7, 'days'), dayjs()],
+    //   fieldName: 'enterDate',
+    //   label: '入厂时间',
+    // },
   ],
-  // 是否可展开
+  // 控制表单是否显示折叠按钮
   showCollapseButton: true,
-  submitButtonOptions: {
-    content: '查询',
-  },
-  wrapperClass: 'grid-cols-1 md:grid-cols-2',
-});
-function onSubmit(values: Record<string, any>) {
-  message.success({
-    content: `form values: ${JSON.stringify(values)}`,
-  });
-}
+  // 是否在字段值改变时提交表单
+  submitOnChange: true,
+  // 按下回车时是否提交表单
+  submitOnEnter: false,
+};
 
 const gridOptions: VxeGridProps<HumanInfo> = {
   checkboxConfig: {
@@ -128,14 +128,14 @@ const gridOptions: VxeGridProps<HumanInfo> = {
     {
       field: 'sex',
       title: '性别',
-      formatter: ({ cellValue }) => (cellValue === '1' ? '是' : '否'),
+      formatter: ({ cellValue }) => (cellValue === '1' ? '男' : '女'),
       width: 80,
     },
-    // {
-    //   field: 'idNbr',
-    //   title: '身份证号',
-    //   width: 180
-    // },
+    {
+      field: 'idNbr',
+      title: '身份证号',
+      width: 180,
+    },
     // {
     //   field: 'edu',
     //   title: '学历',
@@ -174,6 +174,7 @@ const gridOptions: VxeGridProps<HumanInfo> = {
     {
       field: 'employeeType',
       title: '用工性质',
+      formatter: ({ cellValue }) => (cellValue === '1' ? '正式工' : '临时工'),
       width: 120,
     },
     {
@@ -188,18 +189,17 @@ const gridOptions: VxeGridProps<HumanInfo> = {
       title: '联系方式',
       width: 120,
     },
-    // {
-    //   field: 'address',
-    //   title: '家庭住址',
-    //   width: 200
-    // },
-    // {
-    //   field: 'birthday',
-    //   title: '出生日期',
-    //   formatter: ({ cellValue }) =>
-    //     dayjs(cellValue).format('YYYY-MM-DD'),
-    //   width: 120
-    // },
+    {
+      field: 'address',
+      title: '家庭住址',
+      width: 260,
+    },
+    {
+      field: 'birthday',
+      title: '出生日期',
+      formatter: ({ cellValue }) => dayjs(cellValue).format('YYYY-MM-DD'),
+      width: 140,
+    },
     // {
     //   field: 'createTime',
     //   title: '创建时间',
@@ -222,56 +222,49 @@ const gridOptions: VxeGridProps<HumanInfo> = {
     //   width: 80
     // }
   ],
-  exportConfig: {},
-  // height: 'auto', // 如果设置为 auto，则必须确保存在父节点且不允许存在相邻元素，否则会出现高度闪动问题
-  keepSource: true,
   proxyConfig: {
     ajax: {
-      query: async ({ page }) => {
+      query: async ({ page }, formValues) => {
         try {
           debugger;
           const response = await fetchHumanList({
-            current: page.currentPage,
-            size: page.pageSize
+            pageNo: page.currentPage,
+            pageSize: page.pageSize,
+            ...formValues,
           });
           return {
             items: response.data.records, // 关键字段映射
-            total: response.data.total
+            total: response.data.total,
           };
         } catch (error) {
           console.error('请求失败:', error);
           return { items: [], total: 0 };
         }
-      }
-    }
+      },
+    },
   },
-
+  exportConfig: {},
+  height: 'auto',
+  keepSource: true,
+  pagerConfig: {},
   toolbarConfig: {
     custom: true,
     export: true,
-    // import: true,
     refresh: true,
+    resizable: true,
+    // search: true,
     zoom: true,
   },
 };
 
-const [Grid, gridApi] = useVbenVxeGrid({
+const [Grid] = useVbenVxeGrid({
+  formOptions,
   gridOptions,
 });
 </script>
 
 <template>
-  <QueryForm />
-  <div class="vp-raw w-full">
-    <Grid>
-      <template #toolbar-tools>
-        <Button class="mr-2" type="primary" @click="() => gridApi.query()">
-          刷新当前页面
-        </Button>
-        <Button type="primary" @click="() => gridApi.reload()">
-          刷新并返回第一页
-        </Button>
-      </template>
-    </Grid>
-  </div>
+  <Page auto-content-height>
+    <Grid />
+  </Page>
 </template>

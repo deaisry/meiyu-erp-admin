@@ -171,6 +171,7 @@ export type ComponentType =
   | 'Input'
   | 'InputNumber'
   | 'RadioGroup'
+  | 'RangePicker'
   | 'Select'
   | 'Space'
   | 'Switch'
