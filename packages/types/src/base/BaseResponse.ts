@@ -3,6 +3,6 @@ interface BaseResponse<T> {
   state: number;
   message: string;
   success: boolean;
-  data?: T;
+  // data?: T;
 }
 export type { BaseResponse };

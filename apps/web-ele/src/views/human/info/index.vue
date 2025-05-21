@@ -1,48 +1,100 @@
-<!--
- * @Author: deaisry
- * @Date: 2025-05-20 11:19:03
- * @LastEditors: e deaisry@163.com
- * @LastEditTime: 2025-05-20 17:37:41
- * @FilePath: \vue-vben-admin\apps\web-ele\src\views\human\info\index.vue
- * @Description:
- *
- * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
--->
 <script lang="ts" setup>
 import type { VxeGridProps } from '#/adapter/vxe-table';
+import { message } from 'ant-design-vue';
 
+import { useVbenForm } from '#/adapter/form';
 import { Button } from 'ant-design-vue';
-
+import type { HumanInfo } from '@vben/types'
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { fetchHumanList } from '#/api/human/human';
 
-interface RowType {
-  category: string;
-  color: string;
-  id: string;
-  price: string;
-  productName: string;
-  releaseDate: string;
+
+const [QueryForm] = useVbenForm({
+  // 默认展开
+  collapsed: false,
+  // 所有表单项共用，可单独在表单内覆盖
+  commonConfig: {
+    // 所有表单项
+    componentProps: {
+      class: 'w-full',
+    },
+  },
+  // 提交函数
+  handleSubmit: onSubmit,
+  // 垂直布局，label和input在不同行，值为vertical
+  // 水平布局，label和input在同一行
+  layout: 'horizontal',
+  schema: [
+    {
+      // 组件需要在 #/adapter.ts内注册，并加上类型
+      component: 'Input',
+      // 对应组件的参数
+      componentProps: {
+        placeholder: '请输入用户名',
+      },
+      // 字段名
+      fieldName: 'username',
+      // 界面显示的label
+      label: '字符串',
+    },
+    {
+      component: 'InputPassword',
+      componentProps: {
+        placeholder: '请输入密码',
+      },
+      fieldName: 'password',
+      label: '密码',
+    },
+    {
+      component: 'InputNumber',
+      componentProps: {
+        placeholder: '请输入',
+      },
+      fieldName: 'number',
+      label: '数字(带后缀)',
+      suffix: () => '¥',
+    },
+    {
+      component: 'Select',
+      componentProps: {
+        allowClear: true,
+        filterOption: true,
+        options: [
+          {
+            label: '选项1',
+            value: '1',
+          },
+          {
+            label: '选项2',
+            value: '2',
+          },
+        ],
+        placeholder: '请选择',
+        showSearch: true,
+      },
+      fieldName: 'options',
+      label: '下拉选',
+    },
+    {
+      component: 'DatePicker',
+      fieldName: 'datePicker',
+      label: '日期选择框',
+    },
+  ],
+  // 是否可展开
+  showCollapseButton: true,
+  submitButtonOptions: {
+    content: '查询',
+  },
+  wrapperClass: 'grid-cols-1 md:grid-cols-2',
+});
+function onSubmit(values: Record<string, any>) {
+  message.success({
+    content: `form values: ${JSON.stringify(values)}`,
+  });
 }
 
-/**
- * 获取表格数据
- */
-// async function getExampleTableApi(params: DemoTableApi.PageFetchParams) {
-//   return new Promise<{ items: any; total: number }>((resolve) => {
-//     const { page, pageSize } = params;
-//     const items = MOCK_API_DATA.slice((page - 1) * pageSize, page * pageSize);
-
-//     sleep(1000).then(() => {
-//       resolve({
-//         total: items.length,
-//         items,
-//       });
-//     });
-//   });
-// }
-
-const gridOptions: VxeGridProps<RowType> = {
+const gridOptions: VxeGridProps<HumanInfo> = {
   checkboxConfig: {
     highlight: true,
     labelField: 'name',
@@ -176,14 +228,24 @@ const gridOptions: VxeGridProps<RowType> = {
   proxyConfig: {
     ajax: {
       query: async ({ page }) => {
-        debugger;
-        return await fetchHumanList({
-          current: page.currentPage,
-          size: page.pageSize,
-        });
-      },
-    },
+        try {
+          debugger;
+          const response = await fetchHumanList({
+            current: page.currentPage,
+            size: page.pageSize
+          });
+          return {
+            items: response.data.records, // 关键字段映射
+            total: response.data.total
+          };
+        } catch (error) {
+          console.error('请求失败:', error);
+          return { items: [], total: 0 };
+        }
+      }
+    }
   },
+
   toolbarConfig: {
     custom: true,
     export: true,
@@ -199,6 +261,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
 </script>
 
 <template>
+  <QueryForm />
   <div class="vp-raw w-full">
     <Grid>
       <template #toolbar-tools>
