@@ -10,25 +10,29 @@
 -->
 <script lang="ts" setup>
 import type { HumanInfo } from '@vben/types';
-import {
-  departmentOptions,
-  genderOptions,
-  workStatusOptions,
-  employmentTypeOptions
-} from '@vben/types';
-
 
 import type { VbenFormProps } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
+
+import { Page, useVbenDrawer } from '@vben/common-ui';
+import {
+  departmentOptions,
+  employmentTypeOptions,
+  genderOptions,
+  workStatusOptions,
+} from '@vben/types';
+
 import { Button } from 'ant-design-vue';
-
-import { Page } from '@vben/common-ui';
-
 import dayjs from 'dayjs';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { fetchHumanList } from '#/api/human/human';
-import { mapEnumValue } from '#/api/utils/format'
+import { mapEnumValue } from '#/api/utils/format';
+import ExtraDrawer from '#/views/utils/drawer/drawer.vue';
+
+// 编辑抽屉
+defineOptions({ name: 'DrawerExample' });
+
 const formOptions: VbenFormProps = {
   // 默认收起
   collapsed: true,
@@ -70,7 +74,7 @@ const formOptions: VbenFormProps = {
         placeholder: '请选择',
       },
     },
-        {
+    {
       component: 'Select',
       fieldName: 'isWork',
       label: '在职状态',
@@ -101,7 +105,7 @@ const gridOptions: VxeGridProps<HumanInfo> = {
     labelField: 'name',
   },
   columns: [
-    {type: 'checkbox',width:30},
+    { type: 'checkbox', width: 30 },
     {
       title: '序号',
       type: 'seq',
@@ -116,7 +120,7 @@ const gridOptions: VxeGridProps<HumanInfo> = {
       field: 'isWork',
       title: '在职状态',
       width: 80,
-      formatter: ({ cellValue }) => mapEnumValue(workStatusOptions, cellValue)
+      formatter: ({ cellValue }) => mapEnumValue(workStatusOptions, cellValue),
     },
     // {
     //   field: 'attendanceId',
@@ -128,7 +132,7 @@ const gridOptions: VxeGridProps<HumanInfo> = {
       title: '部门',
       sortable: true,
       width: 120,
-      formatter: ({ cellValue }) => mapEnumValue(departmentOptions, cellValue)
+      formatter: ({ cellValue }) => mapEnumValue(departmentOptions, cellValue),
     },
     {
       field: 'cnName',
@@ -184,7 +188,8 @@ const gridOptions: VxeGridProps<HumanInfo> = {
     {
       field: 'employeeType',
       title: '用工性质',
-      formatter: ({ cellValue }) => mapEnumValue(employmentTypeOptions, cellValue),
+      formatter: ({ cellValue }) =>
+        mapEnumValue(employmentTypeOptions, cellValue),
       width: 120,
     },
     {
@@ -274,27 +279,41 @@ const gridOptions: VxeGridProps<HumanInfo> = {
   },
 };
 
-const [Grid,gridApi] = useVbenVxeGrid({
+const [Grid, gridApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
 });
+
+const [Drawer, drawerApi] = useVbenDrawer({
+  // 连接抽离的组件
+  connectedComponent: ExtraDrawer,
+});
+
+function open(row) {
+  drawerApi
+    .setData({
+      ...row, // 传递整个行数据
+    })
+    .open();
+}
 </script>
 
 <template>
   <Page auto-content-height>
+    <Drawer />
     <Grid>
       <template #toolbar-actions>
-          <Button class="mr-2" type="primary" @click="() => gridApi.query()">
-            刷新当前页面
-          </Button>
-          <Button type="primary" @click="() => gridApi.reload()">
-            刷新并返回第一页
-          </Button>
-        </template>
-        <template #action>
-          <Button type="link">编辑</Button>
-          <Button type="link">启用</Button>
-          <Button type="link">停用</Button>
+        <Button class="mr-2" type="primary" @click="() => gridApi.query()">
+          刷新当前页面
+        </Button>
+        <Button type="primary" @click="() => gridApi.reload()">
+          刷新并返回第一页
+        </Button>
+      </template>
+      <template #action="{ row }">
+        <Button type="link" @click="open(row)"> 编辑 </Button>
+        <Button type="link">启用</Button>
+        <Button type="link">停用</Button>
       </template>
     </Grid>
   </Page>
