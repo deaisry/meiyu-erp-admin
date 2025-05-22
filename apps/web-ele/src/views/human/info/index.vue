@@ -1,8 +1,26 @@
+<!--
+ * @Author: deaisry
+ * @Date: 2025-05-20 11:19:03
+ * @LastEditors: e deaisry@163.com
+ * @LastEditTime: 2025-05-22 16:11:10
+ * @FilePath: \meiyu-erp-admin\apps\web-ele\src\views\human\info\index.vue
+ * @Description:
+ *
+ * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
+-->
 <script lang="ts" setup>
 import type { HumanInfo } from '@vben/types';
+import {
+  departmentOptions,
+  genderOptions,
+  workStatusOptions,
+  employmentTypeOptions
+} from '@vben/types';
+
 
 import type { VbenFormProps } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
+import { Button } from 'ant-design-vue';
 
 import { Page } from '@vben/common-ui';
 
@@ -10,7 +28,7 @@ import dayjs from 'dayjs';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { fetchHumanList } from '#/api/human/human';
-
+import { mapEnumValue } from '#/api/utils/format'
 const formOptions: VbenFormProps = {
   // 默认收起
   collapsed: true,
@@ -26,16 +44,7 @@ const formOptions: VbenFormProps = {
       component: 'Select',
       componentProps: {
         allowClear: true,
-        options: [
-          {
-            label: '总经办',
-            value: '1',
-          },
-          {
-            label: '业务部',
-            value: '2',
-          },
-        ],
+        options: departmentOptions,
         placeholder: '请选择',
       },
       fieldName: 'dept',
@@ -47,16 +56,7 @@ const formOptions: VbenFormProps = {
       label: '性别',
       componentProps: {
         allowClear: true,
-        options: [
-          {
-            label: '男',
-            value: '1',
-          },
-          {
-            label: '女',
-            value: '0',
-          },
-        ],
+        options: genderOptions,
         placeholder: '请选择',
       },
     },
@@ -66,16 +66,17 @@ const formOptions: VbenFormProps = {
       label: '用工性质',
       componentProps: {
         allowClear: true,
-        options: [
-          {
-            label: '正式工',
-            value: '1',
-          },
-          {
-            label: '临时工',
-            value: '0',
-          },
-        ],
+        options: employmentTypeOptions,
+        placeholder: '请选择',
+      },
+    },
+        {
+      component: 'Select',
+      fieldName: 'isWork',
+      label: '在职状态',
+      componentProps: {
+        allowClear: true,
+        options: workStatusOptions,
         placeholder: '请选择',
       },
     },
@@ -89,9 +90,9 @@ const formOptions: VbenFormProps = {
   // 控制表单是否显示折叠按钮
   showCollapseButton: true,
   // 是否在字段值改变时提交表单
-  submitOnChange: true,
+  submitOnChange: false,
   // 按下回车时是否提交表单
-  submitOnEnter: false,
+  submitOnEnter: true,
 };
 
 const gridOptions: VxeGridProps<HumanInfo> = {
@@ -100,6 +101,7 @@ const gridOptions: VxeGridProps<HumanInfo> = {
     labelField: 'name',
   },
   columns: [
+    {type: 'checkbox',width:30},
     {
       title: '序号',
       type: 'seq',
@@ -110,6 +112,12 @@ const gridOptions: VxeGridProps<HumanInfo> = {
       title: '工号',
       width: 120,
     },
+    {
+      field: 'isWork',
+      title: '在职状态',
+      width: 80,
+      formatter: ({ cellValue }) => mapEnumValue(workStatusOptions, cellValue)
+    },
     // {
     //   field: 'attendanceId',
     //   title: '考勤号',
@@ -118,7 +126,9 @@ const gridOptions: VxeGridProps<HumanInfo> = {
     {
       field: 'dept',
       title: '部门',
+      sortable: true,
       width: 120,
+      formatter: ({ cellValue }) => mapEnumValue(departmentOptions, cellValue)
     },
     {
       field: 'cnName',
@@ -128,7 +138,7 @@ const gridOptions: VxeGridProps<HumanInfo> = {
     {
       field: 'sex',
       title: '性别',
-      formatter: ({ cellValue }) => (cellValue === '1' ? '男' : '女'),
+      formatter: ({ cellValue }) => mapEnumValue(genderOptions, cellValue),
       width: 80,
     },
     {
@@ -174,7 +184,7 @@ const gridOptions: VxeGridProps<HumanInfo> = {
     {
       field: 'employeeType',
       title: '用工性质',
-      formatter: ({ cellValue }) => (cellValue === '1' ? '正式工' : '临时工'),
+      formatter: ({ cellValue }) => mapEnumValue(employmentTypeOptions, cellValue),
       width: 120,
     },
     {
@@ -192,13 +202,20 @@ const gridOptions: VxeGridProps<HumanInfo> = {
     {
       field: 'address',
       title: '家庭住址',
-      width: 260,
+      width: 200,
     },
     {
       field: 'birthday',
       title: '出生日期',
       formatter: ({ cellValue }) => dayjs(cellValue).format('YYYY-MM-DD'),
       width: 140,
+    },
+    {
+      field: 'action',
+      fixed: 'right',
+      slots: { default: 'action' },
+      title: '操作',
+      width: 200,
     },
     // {
     //   field: 'createTime',
@@ -257,7 +274,7 @@ const gridOptions: VxeGridProps<HumanInfo> = {
   },
 };
 
-const [Grid] = useVbenVxeGrid({
+const [Grid,gridApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
 });
@@ -265,6 +282,20 @@ const [Grid] = useVbenVxeGrid({
 
 <template>
   <Page auto-content-height>
-    <Grid />
+    <Grid>
+      <template #toolbar-actions>
+          <Button class="mr-2" type="primary" @click="() => gridApi.query()">
+            刷新当前页面
+          </Button>
+          <Button type="primary" @click="() => gridApi.reload()">
+            刷新并返回第一页
+          </Button>
+        </template>
+        <template #action>
+          <Button type="link">编辑</Button>
+          <Button type="link">启用</Button>
+          <Button type="link">停用</Button>
+      </template>
+    </Grid>
   </Page>
 </template>

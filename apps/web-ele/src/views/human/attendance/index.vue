@@ -1,14 +1,13 @@
+
 <script lang="ts" setup>
-import type { VbenFormProps } from '#/adapter/form';
-import type { VxeTableGridOptions } from '#/adapter/vxe-table';
+import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { Page } from '@vben/common-ui';
-
-import { message } from 'ant-design-vue';
-import dayjs from 'dayjs';
+import { Button } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getExampleTableApi } from '#/api';
+import { fetchHumanList } from '#/api/human/human';
+
+// import { getExampleTableApi } from '../mock-api';
 
 interface RowType {
   category: string;
@@ -19,109 +18,63 @@ interface RowType {
   releaseDate: string;
 }
 
-const formOptions: VbenFormProps = {
-  // 默认展开
-  collapsed: false,
-  fieldMappingTime: [['date', ['start', 'end']]],
-  schema: [
-    {
-      component: 'Input',
-      defaultValue: '1',
-      fieldName: 'category',
-      label: 'Category',
-    },
-    {
-      component: 'Input',
-      fieldName: 'productName',
-      label: 'ProductName',
-    },
-    {
-      component: 'Input',
-      fieldName: 'price',
-      label: 'Price',
-    },
-    {
-      component: 'Select',
-      componentProps: {
-        allowClear: true,
-        options: [
-          {
-            label: 'Color1',
-            value: '1',
-          },
-          {
-            label: 'Color2',
-            value: '2',
-          },
-        ],
-        placeholder: '请选择',
-      },
-      fieldName: 'color',
-      label: 'Color',
-    },
-    {
-      component: 'RangePicker',
-      defaultValue: [dayjs().subtract(7, 'days'), dayjs()],
-      fieldName: 'date',
-      label: 'Date',
-    },
-  ],
-  // 控制表单是否显示折叠按钮
-  showCollapseButton: true,
-  // 是否在字段值改变时提交表单
-  submitOnChange: true,
-  // 按下回车时是否提交表单
-  submitOnEnter: false,
-};
-
-const gridOptions: VxeTableGridOptions<RowType> = {
-  checkboxConfig: {
-    highlight: true,
-    labelField: 'name',
-  },
+const gridOptions: VxeGridProps<RowType> = {
   columns: [
-    { title: '序号', type: 'seq', width: 50 },
-    { align: 'left', title: 'Name', type: 'checkbox', width: 100 },
-    { field: 'category', title: 'Category' },
-    { field: 'color', title: 'Color' },
-    { field: 'productName', title: 'Product Name' },
-    { field: 'price', title: 'Price' },
-    { field: 'releaseDate', formatter: 'formatDateTime', title: 'Date' },
+    { fixed: 'left', title: '序号', type: 'seq', width: 50 },
+    { field: 'category', title: 'Category', width: 300 },
+    { field: 'color', title: 'Color', width: 300 },
+    { field: 'productName', title: 'Product Name', width: 300 },
+    { field: 'price', title: 'Price', width: 300 },
+    {
+      field: 'releaseDate',
+      formatter: 'formatDateTime',
+      title: 'DateTime',
+      width: 500,
+    },
+    {
+      field: 'action',
+      fixed: 'right',
+      slots: { default: 'action' },
+      title: '操作',
+      width: 120,
+    },
   ],
-  exportConfig: {},
-  height: 'auto',
-  keepSource: true,
   pagerConfig: {},
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues) => {
-        message.success(`Query params: ${JSON.stringify(formValues)}`);
-        return await getExampleTableApi({
-          page: page.currentPage,
-          pageSize: page.pageSize,
-          ...formValues,
-        });
+        try {
+          debugger;
+          const response = await fetchHumanList({
+            pageNo: page.currentPage,
+            pageSize: page.pageSize,
+            ...formValues,
+          });
+          return {
+            items: response.data.records, // 关键字段映射
+            total: response.data.total,
+          };
+        } catch (error) {
+          console.error('请求失败:', error);
+          return { items: [], total: 0 };
+        }
       },
     },
   },
-  toolbarConfig: {
-    custom: true,
-    export: true,
-    refresh: true,
-    resizable: true,
-    search: true,
-    zoom: true,
+  rowConfig: {
+    isHover: true,
   },
 };
 
-const [Grid] = useVbenVxeGrid({
-  formOptions,
-  gridOptions,
-});
+const [Grid] = useVbenVxeGrid({ gridOptions });
 </script>
 
 <template>
-  <Page auto-content-height>
-    <Grid />
-  </Page>
+  <div class="vp-raw w-full">
+    <Grid>
+      <template #action>
+        <Button type="link">编辑</Button>
+      </template>
+    </Grid>
+  </div>
 </template>

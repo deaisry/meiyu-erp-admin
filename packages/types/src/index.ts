@@ -9,3 +9,4 @@ export type * from './human/HumanApiResponse';
 export type * from './PageResult';
 export type * from './user';
 export type * from '@vben-core/typings';
+export * from './enum';
