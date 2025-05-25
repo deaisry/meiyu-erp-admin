@@ -122,11 +122,11 @@ const gridOptions: VxeGridProps<HumanInfo> = {
       width: 80,
       formatter: ({ cellValue }) => mapEnumValue(workStatusOptions, cellValue),
     },
-    // {
-    //   field: 'attendanceId',
-    //   title: '考勤号',
-    //   width: 120
-    // },
+    {
+      field: 'attendanceId',
+      title: '考勤号',
+      width: 120,
+    },
     {
       field: 'dept',
       title: '部门',
@@ -150,19 +150,10 @@ const gridOptions: VxeGridProps<HumanInfo> = {
       title: '身份证号',
       width: 180,
     },
-    // {
-    //   field: 'edu',
-    //   title: '学历',
-    //   formatter: ({ cellValue }) =>
-    //     ({
-    //       '1':'初中',
-    //       '2':'高中',
-    //       '3':'大专',
-    //       '4':'本科',
-    //       '5':'硕士'
-    //     }[cellValue]),
-    //   width: 100
-    // },
+    {
+      field: 'edu',
+      title: '学历',
+    },
     {
       field: 'nativePlace',
       title: '籍贯',
@@ -173,13 +164,12 @@ const gridOptions: VxeGridProps<HumanInfo> = {
       title: '民族',
       width: 100,
     },
-    // {
-    //   field: 'isMarried',
-    //   title: '婚否',
-    //   formatter: ({ cellValue }) =>
-    //     cellValue === '1' ? '是' : '否',
-    //   width: 80
-    // },
+    {
+      field: 'isMarried',
+      title: '婚否',
+      formatter: ({ cellValue }) => (cellValue === '1' ? '是' : '否'),
+      width: 80,
+    },
     {
       field: 'title',
       title: '职务',
@@ -222,27 +212,6 @@ const gridOptions: VxeGridProps<HumanInfo> = {
       title: '操作',
       width: 200,
     },
-    // {
-    //   field: 'createTime',
-    //   title: '创建时间',
-    //   formatter: ({ cellValue }) =>
-    //     dayjs(cellValue).format('YYYY-MM-DD HH:mm'),
-    //   width: 150
-    // },
-    // {
-    //   field: 'updateTime',
-    //   title: '更新时间',
-    //   formatter: ({ cellValue }) =>
-    //     dayjs(cellValue).format('YYYY-MM-DD HH:mm'),
-    //   width: 150
-    // },
-    // {
-    //   field: 'deleteFlag',
-    //   title: '状态',
-    //   formatter: ({ cellValue }) =>
-    //     cellValue === '1' ? '已删除' : '正常',
-    //   width: 80
-    // }
   ],
   proxyConfig: {
     ajax: {
