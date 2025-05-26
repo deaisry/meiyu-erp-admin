@@ -17,6 +17,7 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 import { Page, useVbenDrawer } from '@vben/common-ui';
 import {
   departmentOptions,
+  educationOptions,
   employmentTypeOptions,
   genderOptions,
   workStatusOptions,
@@ -153,6 +154,7 @@ const gridOptions: VxeGridProps<HumanInfo> = {
     {
       field: 'edu',
       title: '学历',
+      formatter: ({ cellValue }) => mapEnumValue(educationOptions, cellValue),
     },
     {
       field: 'nativePlace',

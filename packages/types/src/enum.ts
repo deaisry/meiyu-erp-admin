@@ -30,11 +30,11 @@ export enum MarryStatusEnum {
 }
 
 export enum EducationEnum {
-  Primary = 1,
-  Junior,
-  High,
-  Undergraduate,
-  Master,
+  High = '3',
+  Junior = '2',
+  Master = '5',
+  Primary = '1',
+  Undergraduate = '4',
 }
 
 type EnumOption<T extends number | string> = {
@@ -99,9 +99,8 @@ export const educationOptions = createEnumOptions(EducationEnum, {
   Master: '硕士',
 });
 
-
 // 学历
 export const marryOptions = createEnumOptions(MarryStatusEnum, {
-  isMarried:'已婚',
-  unMarried:'未婚',
+  isMarried: '已婚',
+  unMarried: '未婚',
 });

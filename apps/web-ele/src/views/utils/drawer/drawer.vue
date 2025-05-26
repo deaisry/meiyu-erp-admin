@@ -7,15 +7,15 @@ import {
   educationOptions,
   employmentTypeOptions,
   genderOptions,
+  marryOptions,
   workStatusOptions,
-  marryOptions
 } from '@vben/types';
 
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import { useVbenForm } from '#/adapter/form';
-import { componentToSlot } from 'element-plus/es/components/table-v2/src/utils.mjs';
+import { submitHumanInfo } from '#/api/human/human';
 
 const data = ref();
 
@@ -24,7 +24,9 @@ const [Drawer, drawerApi] = useVbenDrawer({
     drawerApi.close();
   },
   onConfirm() {
-    console.info('onConfirm');
+    // todo
+    const response = await submitHumanInfo(data);
+    console.log(response);
   },
   onOpenChange(isOpen: boolean) {
     if (isOpen) {
@@ -60,11 +62,12 @@ const [BaseForm, formApi] = useVbenForm({
       label: '工号',
     },
     {
-      component: 'Switch',
-      defaultValue:true,
+      component: 'RadioGroup',
       fieldName: 'isWork',
       label: '在职状态',
-      
+      componentProps: {
+        options: workStatusOptions,
+      },
     },
     {
       component: 'Input',
@@ -113,6 +116,8 @@ const [BaseForm, formApi] = useVbenForm({
       component: 'Select',
       componentProps: {
         options: educationOptions,
+        placeholder: '请选择学历',
+        showSearch: true,
       },
       fieldName: 'edu',
       label: '学历',
@@ -198,6 +203,7 @@ const [BaseForm, formApi] = useVbenForm({
   // // 初始化空表单模型
   // model: {},
   wrapperClass: 'grid grid-cols-2 gap-4',
+  showDefaultActions: false,
 });
 
 function onSubmit(values: Record<string, any>) {
@@ -226,6 +232,5 @@ watch(
 <template>
   <Drawer title="员工信息" width="680">
     <BaseForm v-model:model="data" />
-    <div class="flex-col-center">外部传递数据： {{ data }}</div>
   </Drawer>
 </template>

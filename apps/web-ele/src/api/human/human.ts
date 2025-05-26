@@ -9,6 +9,7 @@
  * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
  */
 import type {
+  BaseResponse,
   HumanApiResponse,
   HumanInfo,
   PaginationParams,
@@ -32,6 +33,15 @@ export async function fetchHumanList(
   const response = await requestClient.post<HumanApiResponse>(
     '/human/findList',
     params,
+  );
+  return response;
+}
+
+export async function submitHumanInfo(data: HumanInfo) {
+  debugger;
+  const response = await requestClient.post<BaseResponse>(
+    '/human/insertOrUpdate',
+    data,
   );
   return response;
 }

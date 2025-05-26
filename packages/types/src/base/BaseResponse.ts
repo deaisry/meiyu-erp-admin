@@ -1,5 +1,5 @@
 // 基础响应接口
-interface BaseResponse<T> {
+interface BaseResponse {
   state: number;
   message: string;
   success: boolean;
