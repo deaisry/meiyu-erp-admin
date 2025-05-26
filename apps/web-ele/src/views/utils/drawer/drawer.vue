@@ -7,12 +7,15 @@ import {
   educationOptions,
   employmentTypeOptions,
   genderOptions,
+  workStatusOptions,
+  marryOptions
 } from '@vben/types';
 
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import { useVbenForm } from '#/adapter/form';
+import { componentToSlot } from 'element-plus/es/components/table-v2/src/utils.mjs';
 
 const data = ref();
 
@@ -25,6 +28,7 @@ const [Drawer, drawerApi] = useVbenDrawer({
   },
   onOpenChange(isOpen: boolean) {
     if (isOpen) {
+      debugger;
       // 确保DOM更新后设置数据
       nextTick().then(() => {
         const rowData = drawerApi.getData<Record<string, any>>();
@@ -57,19 +61,16 @@ const [BaseForm, formApi] = useVbenForm({
     },
     {
       component: 'Switch',
-      componentProps: {
-        checkedChildren: '在职',
-        unCheckedChildren: '离职',
-        checkedValue: '1',
-        unCheckedValue: '0',
-      },
+      defaultValue:true,
       fieldName: 'isWork',
       label: '在职状态',
+      
     },
     {
       component: 'Input',
       componentProps: {
-        placeholder: '请输入考勤号',
+        disabled: true,
+        placeholder: '系统自动生成',
       },
       fieldName: 'attendanceId',
       label: '考勤号',
@@ -133,12 +134,9 @@ const [BaseForm, formApi] = useVbenForm({
       label: '民族',
     },
     {
-      component: 'Switch',
+      component: 'RadioGroup',
       componentProps: {
-        checkedChildren: '已婚',
-        unCheckedChildren: '未婚',
-        checkedValue: '1',
-        unCheckedValue: '0',
+        options: marryOptions,
       },
       fieldName: 'isMarried',
       label: '婚姻状况',
@@ -178,7 +176,7 @@ const [BaseForm, formApi] = useVbenForm({
       label: '联系方式',
     },
     {
-      component: 'TextArea',
+      component: 'Input',
       componentProps: {
         placeholder: '请输入详细地址',
         autoSize: { minRows: 2 },
@@ -220,7 +218,7 @@ function onSubmit(values: Record<string, any>) {
 watch(
   data,
   (newVal) => {
-    // formApi.setModel(newVal);
+    formApi.setValues(newVal);
   },
   { deep: true },
 );

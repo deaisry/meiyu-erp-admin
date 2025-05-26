@@ -24,6 +24,11 @@ export enum WorkStatusEnum {
   Resignation = '0',
 }
 
+export enum MarryStatusEnum {
+  isMarried = '1',
+  unMarried = '0',
+}
+
 export enum EducationEnum {
   Primary = 1,
   Junior,
@@ -85,11 +90,18 @@ export const workStatusOptions = createEnumOptions(WorkStatusEnum, {
   Resignation: '离职',
 });
 
-// educationOptions
+// 学历
 export const educationOptions = createEnumOptions(EducationEnum, {
   Primary: '小学',
   Junior: '初中',
   High: '高中',
   Undergraduate: '本科',
   Master: '硕士',
+});
+
+
+// 学历
+export const marryOptions = createEnumOptions(MarryStatusEnum, {
+  isMarried:'已婚',
+  unMarried:'未婚',
 });
