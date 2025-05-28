@@ -10,46 +10,57 @@ import {
   marryOptions,
   workStatusOptions,
 } from '@vben/types';
-
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import { useVbenForm } from '#/adapter/form';
 import { submitHumanInfo } from '#/api/human/human';
+import { fi } from 'element-plus/es/locales.mjs';
+// import { isEqual } from 'lodash-es';
 
-const data = ref();
+const isDirty = ref(false);         // 记录数据是否被修改
+const isInitializing = ref(false);  // 标记是否处于初始化阶段
 
 const [Drawer, drawerApi] = useVbenDrawer({
+  destroyOnClose: true,
   onCancel() {
     drawerApi.close();
   },
-  onConfirm() {
-    // todo
-    const response = await submitHumanInfo(data);
-    console.log(response);
+async onConfirm() {
+    try {
+      if(!isDirty.value){
+        drawerApi.close();
+        return;
+      }
+      await submitHumanInfo(await formApi.submitForm());
+      message.success('提交成功');
+      formApi.resetForm();
+      isDirty.value = false; // 提交后重置脏状态
+      drawerApi.close();
+    } catch (error) {
+      drawerApi.close();
+      message.error('提交失败');
+    }
   },
   onOpenChange(isOpen: boolean) {
     if (isOpen) {
-      debugger;
-      // 确保DOM更新后设置数据
-      nextTick().then(() => {
-        const rowData = drawerApi.getData<Record<string, any>>();
-        data.value = rowData;
-        // updateFormModel(rowData)
-      });
-    } else {
-      // resetForm()
+      isInitializing.value = true; // 标记初始化开始
+      const initialData = drawerApi.getData<Record<string, any>>() || {};
+      formApi.setValues(initialData);
+    }else{
+          formApi.resetForm();
+          isDirty.value = false;
     }
   },
+  title: "员工信息"
 });
 
-const [BaseForm, formApi] = useVbenForm({
+const [Form, formApi] = useVbenForm({
   commonConfig: {
     componentProps: {
       class: 'w-full',
     },
   },
-  handleSubmit: onSubmit,
   layout: 'vertical',
   schema: [
     {
@@ -83,6 +94,8 @@ const [BaseForm, formApi] = useVbenForm({
       componentProps: {
         options: departmentOptions,
         placeholder: '请选择部门',
+        allowClear: true,
+        filterOption: true,
         showSearch: true,
       },
       fieldName: 'dept',
@@ -200,37 +213,23 @@ const [BaseForm, formApi] = useVbenForm({
       label: '出生日期',
     },
   ],
-  // // 初始化空表单模型
-  // model: {},
   wrapperClass: 'grid grid-cols-2 gap-4',
   showDefaultActions: false,
+  handleValuesChange(_values, fieldsChanged) {
+    if(isInitializing.value){
+      // 判断是不是第一次进handleValuesChange
+      isInitializing.value = false;
+      return;
+    }
+    isDirty.value = true;
+  },
 });
 
-function onSubmit(values: Record<string, any>) {
-  // 转换日期格式
-  const formattedValues = {
-    ...values,
-    enterDate: dayjs(values.enterDate).format('YYYY-MM-DD'),
-    birthday: values.birthday
-      ? dayjs(values.birthday).format('YYYY-MM-DD')
-      : null,
-  };
-
-  message.success({
-    content: `提交数据：${JSON.stringify(formattedValues)}`,
-  });
-}
-// 监听数据变化同步到表单
-watch(
-  data,
-  (newVal) => {
-    formApi.setValues(newVal);
-  },
-  { deep: true },
-);
 </script>
 <template>
-  <Drawer title="员工信息" width="680">
-    <BaseForm v-model:model="data" />
+    <Drawer>
+    <Form />
   </Drawer>
 </template>
+
+

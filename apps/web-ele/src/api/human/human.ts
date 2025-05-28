@@ -21,15 +21,6 @@ import { requestClient } from '#/api/request';
 export async function fetchHumanList(
   params: PaginationParams<PaginationResult<HumanInfo>>,
 ) {
-  debugger;
-  // 合并分页参数和查询条件
-  // const requestParams = {
-  //   current: params.current,
-  //   size: params.size,
-  //   ...params.query, // 展开查询条件
-  // };
-  console.log(params);
-  // console.log(requestParams);
   const response = await requestClient.post<HumanApiResponse>(
     '/human/findList',
     params,

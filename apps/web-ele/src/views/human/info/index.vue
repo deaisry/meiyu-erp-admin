@@ -2,7 +2,7 @@
  * @Author: deaisry
  * @Date: 2025-05-20 11:19:03
  * @LastEditors: e deaisry@163.com
- * @LastEditTime: 2025-05-26 17:53:57
+ * @LastEditTime: 2025-05-28 11:59:03
  * @FilePath: \meiyu-erp-admin\apps\web-ele\src\views\human\info\index.vue
  * @Description:
  *
@@ -25,14 +25,14 @@ import {
 
 import { Button } from 'ant-design-vue';
 import dayjs from 'dayjs';
-
+import { message } from 'ant-design-vue';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { fetchHumanList } from '#/api/human/human';
 import { mapEnumValue } from '#/api/utils/format';
 import ExtraDrawer from '#/views/utils/drawer/drawer.vue';
+import { genActiveStyle } from 'ant-design-vue/es/input/style';
 
 // 编辑抽屉
-defineOptions({ name: 'DrawerExample' });
 
 const formOptions: VbenFormProps = {
   // 默认收起
@@ -212,7 +212,7 @@ const gridOptions: VxeGridProps<HumanInfo> = {
       fixed: 'right',
       slots: { default: 'action' },
       title: '操作',
-      width: 200,
+      width: 255,
     },
   ],
   proxyConfig: {
@@ -258,6 +258,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
 const [Drawer, drawerApi] = useVbenDrawer({
   // 连接抽离的组件
   connectedComponent: ExtraDrawer,
+  onClosed(){
+    gridApi.reload();
+  }
 });
 
 function open(row) {
@@ -267,6 +270,17 @@ function open(row) {
     })
     .open();
 }
+
+function active(row){
+
+}
+function inactive(row){
+
+}
+function selectById(row){
+
+}
+
 </script>
 
 <template>
@@ -283,8 +297,9 @@ function open(row) {
       </template>
       <template #action="{ row }">
         <Button type="link" @click="open(row)"> 编辑 </Button>
-        <Button type="link">启用</Button>
-        <Button type="link">停用</Button>
+        <Button type="link" @click="acitve(row)">启用</Button>
+        <Button type="link" @click="inacitve(row)">停用</Button>
+        <Button type="link" @click="selectById(row)">详情</Button>
       </template>
     </Grid>
   </Page>
