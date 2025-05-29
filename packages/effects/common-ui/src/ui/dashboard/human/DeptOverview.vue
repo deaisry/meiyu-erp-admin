@@ -2,7 +2,7 @@
  * @Author: deaisry
  * @Date: 2025-05-29 11:05:31
  * @LastEditors: e deaisry@163.com
- * @LastEditTime: 2025-05-29 11:50:55
+ * @LastEditTime: 2025-05-29 17:23:38
  * @FilePath: \meiyu-erp-admin\packages\effects\common-ui\src\ui\dashboard\human\DeptOverView.vue
  * @Description:
  *
@@ -42,13 +42,13 @@ withDefaults(defineProps<Props>(), {
           <!-- 左侧标题 -->
           <div class="space-y-0.5">
             <h3 class="text-sm font-medium text-muted-foreground tracking-tight">
-              {{ item.title }}
+              {{ item.dept }}
             </h3>
           </div>
 
           <!-- 右侧数值 -->
           <VbenCountToAnimator
-            :end-val="item.value"
+            :end-val="item.cnt"
             :start-val="1"
             class="text-xl font-semibold"
           />

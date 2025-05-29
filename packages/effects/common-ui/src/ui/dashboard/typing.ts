@@ -19,8 +19,8 @@ interface AnalysisOverviewItem {
 }
 
 interface DeptOverviewItem{
-  title: string;
-  value:number;
+  dept: string;
+  cnt:number;
 }
 
 

@@ -2,7 +2,17 @@
  * @Author: deaisry
  * @Date: 2025-05-20 11:19:03
  * @LastEditors: e deaisry@163.com
- * @LastEditTime: 2025-05-29 16:14:09
+ * @LastEditTime: 2025-05-29 17:39:40
+ * @FilePath: \meiyu-erp-admin\apps\web-ele\src\views\human\info\index.vue
+ * @Description:
+ *
+ * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
+-->
+<!--
+ * @Author: deaisry
+ * @Date: 2025-05-20 11:19:03
+ * @LastEditors: e deaisry@163.com
+ * @LastEditTime: 2025-05-29 17:11:33
  * @FilePath: \meiyu-erp-admin\apps\web-ele\src\views\human\info\index.vue
  * @Description:
  *
@@ -22,7 +32,7 @@ import {
   genderOptions,
   workStatusOptions,
 } from '@vben/types';
-
+import { provide, ref } from 'vue';
 import { Button } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import { message } from 'ant-design-vue';
@@ -30,6 +40,7 @@ import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { fetchHumanList,activeEmp,inactiveEmp,selectById } from '#/api/human/human';
 import { mapEnumValue } from '#/api/utils/format';
 import ExtraDrawer from '#/views/utils/drawer/drawer.vue';
+import Child from './overview.vue';
 import { genActiveStyle } from 'ant-design-vue/es/input/style';
 
 // 编辑抽屉
@@ -99,7 +110,7 @@ const formOptions: VbenFormProps = {
   // 按下回车时是否提交表单
   submitOnEnter: true,
 };
-
+const deptList = ref<{ dept: string; cnt: number }[]>([]);
 const gridOptions: VxeGridProps<HumanInfo> = {
   checkboxConfig: {
     highlight: true,
@@ -219,16 +230,19 @@ const gridOptions: VxeGridProps<HumanInfo> = {
     ajax: {
       query: async ({ page }, formValues) => {
         try {
-          debugger;
           const response = await fetchHumanList({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...formValues,
           });
+          // ({ cellValue }) => mapEnumValue(workStatusOptions, cellValue)
+          deptList.value = response.list.map(item => ({
+            ...item,
+            dept: mapEnumValue(departmentOptions, item.dept) || item.dept
+          }));
           return {
             items: response.data.records, // 关键字段映射
             total: response.data.total,
-            list: response.list,
           };
         } catch (error) {
           console.error('请求失败:', error);
@@ -274,24 +288,21 @@ function open(row: HumanInfo) {
 
 function active(row: HumanInfo){
   try{
-    debugger;
-    console.log(gridApi.grid.getTableData());
-    console.log(gridApi.grid.getData());
-    const response = activeEmp(row);
-    console.log(response);
+    activeEmp(row);
+    // console.log(response);
     message.info(`职工${row.cnName}启用成功`);
   }catch(error){
-    message.error("职工${row.cnName}启用失败");
+    message.error(`职工${row.cnName}启用失败`);
   }
 };
 
 function inactive(row: HumanInfo){
   try{
-    const response = inactiveEmp(row);
-    console.log(response);
+    inactiveEmp(row);
+    // console.log(response);
     message.info(`职工${row.cnName}停用成功`);
     }catch(error){
-      message.error("职工${row.cnName}停用失败");
+      message.error(`职工${row.cnName}停用失败`);
   }
 };
 
@@ -309,6 +320,7 @@ function selectById(row: HumanInfo){
 <template>
   <Page auto-content-height>
     <Drawer />
+    <Child :dept-list="deptList" />
     <Grid>
       <template #toolbar-actions>
         <Button class="mr-2" type="primary" @click="() => gridApi.query()">
