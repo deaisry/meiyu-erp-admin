@@ -1,3 +1,13 @@
+/*
+ * @Author: deaisry
+ * @Date: 2025-05-15 10:50:48
+ * @LastEditors: e deaisry@163.com
+ * @LastEditTime: 2025-05-29 11:21:17
+ * @FilePath: \meiyu-erp-admin\packages\effects\common-ui\src\ui\dashboard\typing.ts
+ * @Description:
+ *
+ * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
+ */
 import type { Component } from 'vue';
 
 interface AnalysisOverviewItem {
@@ -7,6 +17,12 @@ interface AnalysisOverviewItem {
   totalValue: number;
   value: number;
 }
+
+interface DeptOverviewItem{
+  title: string;
+  value:number;
+}
+
 
 interface WorkbenchProjectItem {
   color?: string;
@@ -45,4 +61,5 @@ export type {
   WorkbenchQuickNavItem,
   WorkbenchTodoItem,
   WorkbenchTrendItem,
+  DeptOverviewItem,
 };

@@ -2,7 +2,7 @@
  * @Author: deaisry
  * @Date: 2025-05-20 15:25:06
  * @LastEditors: e deaisry@163.com
- * @LastEditTime: 2025-05-21 11:27:58
+ * @LastEditTime: 2025-05-29 16:11:00
  * @FilePath: \meiyu-erp-admin\apps\web-ele\src\api\human\human.ts
  * @Description:
  *
@@ -10,18 +10,17 @@
  */
 import type {
   BaseResponse,
-  HumanApiResponse,
   HumanInfo,
   PaginationParams,
-  PaginationResult,
+  OverviewPaginationResult
 } from '@vben/types';
 
 import { requestClient } from '#/api/request';
 
 export async function fetchHumanList(
-  params: PaginationParams<PaginationResult<HumanInfo>>,
+  params: PaginationParams<OverviewPaginationResult<HumanInfo>>,
 ) {
-  const response = await requestClient.post<HumanApiResponse>(
+  const response = await requestClient.post<OverviewPaginationResult<HumanInfo>>(
     '/human/findList',
     params,
   );
@@ -29,10 +28,27 @@ export async function fetchHumanList(
 }
 
 export async function submitHumanInfo(data: HumanInfo) {
-  debugger;
   const response = await requestClient.post<BaseResponse>(
     '/human/insertOrUpdate',
     data,
   );
   return response;
+}
+
+export async function activeEmp(data: HumanInfo){
+    return await requestClient.post<BaseResponse>(
+      '/human/activeEmp',data
+    );
+}
+
+export async function inactiveEmp(data: HumanInfo){
+    return await requestClient.post<BaseResponse>(
+      '/human/inactiveEmp',data
+    );
+}
+
+export async function selectById(data: HumanInfo){
+    return await requestClient.post<BaseResponse>(
+      '/human/selectById',data
+    );
 }

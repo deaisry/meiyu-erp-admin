@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { WorkbenchTodoItem } from '../typing';
+import type { WorkbenchTodoItem } from '../../about/typing';
 
 import {
   Card,

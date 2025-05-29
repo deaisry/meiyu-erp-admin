@@ -10,7 +10,7 @@
  */
 import type { BaseResponse,PaginationResult } from '@vben/types';
 
-interface PaginationResponse<T> extends BaseResponse<T>{
+interface PaginationResponse<T> extends BaseResponse{
   data: PaginationResult<T>
 }
 export type {PaginationResponse};

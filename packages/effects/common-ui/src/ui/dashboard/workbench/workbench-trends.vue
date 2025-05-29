@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { WorkbenchTrendItem } from '../typing';
+import type { WorkbenchTrendItem } from '../../about/typing';
 
 import {
   Card,

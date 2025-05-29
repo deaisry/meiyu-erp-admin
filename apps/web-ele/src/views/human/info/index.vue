@@ -2,7 +2,7 @@
  * @Author: deaisry
  * @Date: 2025-05-20 11:19:03
  * @LastEditors: e deaisry@163.com
- * @LastEditTime: 2025-05-28 11:59:03
+ * @LastEditTime: 2025-05-29 16:14:09
  * @FilePath: \meiyu-erp-admin\apps\web-ele\src\views\human\info\index.vue
  * @Description:
  *
@@ -27,7 +27,7 @@ import { Button } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import { message } from 'ant-design-vue';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { fetchHumanList } from '#/api/human/human';
+import { fetchHumanList,activeEmp,inactiveEmp,selectById } from '#/api/human/human';
 import { mapEnumValue } from '#/api/utils/format';
 import ExtraDrawer from '#/views/utils/drawer/drawer.vue';
 import { genActiveStyle } from 'ant-design-vue/es/input/style';
@@ -228,6 +228,7 @@ const gridOptions: VxeGridProps<HumanInfo> = {
           return {
             items: response.data.records, // 关键字段映射
             total: response.data.total,
+            list: response.list,
           };
         } catch (error) {
           console.error('请求失败:', error);
@@ -263,7 +264,7 @@ const [Drawer, drawerApi] = useVbenDrawer({
   }
 });
 
-function open(row) {
+function open(row: HumanInfo) {
   drawerApi
     .setData({
       ...row, // 传递整个行数据
@@ -271,15 +272,37 @@ function open(row) {
     .open();
 }
 
-function active(row){
+function active(row: HumanInfo){
+  try{
+    debugger;
+    console.log(gridApi.grid.getTableData());
+    console.log(gridApi.grid.getData());
+    const response = activeEmp(row);
+    console.log(response);
+    message.info(`职工${row.cnName}启用成功`);
+  }catch(error){
+    message.error("职工${row.cnName}启用失败");
+  }
+};
 
-}
-function inactive(row){
+function inactive(row: HumanInfo){
+  try{
+    const response = inactiveEmp(row);
+    console.log(response);
+    message.info(`职工${row.cnName}停用成功`);
+    }catch(error){
+      message.error("职工${row.cnName}停用失败");
+  }
+};
 
-}
-function selectById(row){
-
-}
+function selectById(row: HumanInfo){
+  try{
+    const response = selectById(row);
+    console.log(response);
+    }catch(error){
+      message.error("查询失败");
+  }
+};
 
 </script>
 
@@ -297,8 +320,8 @@ function selectById(row){
       </template>
       <template #action="{ row }">
         <Button type="link" @click="open(row)"> 编辑 </Button>
-        <Button type="link" @click="acitve(row)">启用</Button>
-        <Button type="link" @click="inacitve(row)">停用</Button>
+        <Button type="link" @click="active(row)">启用</Button>
+        <Button type="link" @click="inactive(row)">停用</Button>
         <Button type="link" @click="selectById(row)">详情</Button>
       </template>
     </Grid>
