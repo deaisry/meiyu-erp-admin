@@ -1,29 +1,27 @@
 <script lang="ts" setup>
-import type { DeptOverviewItem } from '@vben/common-ui';
-import { computed } from 'vue'
+import { useVbenModal, VbenButton } from '@vben/common-ui';
 
-import {
-  DeptOverview,
-} from '@vben/common-ui';
+import ExtraModal from './basicModal.vue';
 
-// const deptList = inject('deptData', () => [])
+const [Modal, modalApi] = useVbenModal({
+  // 连接抽离的组件
+  connectedComponent: ExtraModal,
+});
 
-const props = defineProps<{
-  deptList: Array<{ dept: string; cnt: number }>
-}>();
-const overviewItems = computed(() => props.deptList);
-
-// const overviewItems: DeptOverviewItem[] = [
-// {
-//   dept:'业务部',
-//   cnt:200
-// },
-// ...
-// ];
+function openModal() {
+  modalApi
+    .setData({
+      content: '外部传递的数据 content',
+      payload: '外部传递的数据 payload',
+    })
+    .open();
+}
 </script>
 
 <template>
-  <div class="p-5">
-    <DeptOverview :items="overviewItems" />
+  <div>
+    <Modal />
+
+    <VbenButton @click="openModal">Open</VbenButton>
   </div>
 </template>

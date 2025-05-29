@@ -52,7 +52,7 @@ export function createEnumOptions<T extends Record<string, any>>(
   labelMap: Record<keyof T, string>,
 ): EnumOption<T[keyof T]>[] {
   return Object.keys(enumObj)
-    .filter((key) => isNaN(Number(key))) // 过滤掉反向映射
+    .filter((key) => Number.isNaN(Number(key))) // 过滤掉反向映射
     .map((key) => ({
       label: labelMap[key as keyof T],
       value: enumObj[key as keyof T],

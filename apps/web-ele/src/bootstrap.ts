@@ -1,7 +1,10 @@
 import { createApp, watchEffect } from 'vue';
 
 import { registerAccessDirective } from '@vben/access';
-import { registerLoadingDirective } from '@vben/common-ui';
+import {
+  registerLoadingDirective,
+  setDefaultModalProps,
+} from '@vben/common-ui';
 import { preferences } from '@vben/preferences';
 import { initStores } from '@vben/stores';
 import '@vben/styles';
@@ -20,9 +23,9 @@ async function bootstrap(namespace: string) {
   // 初始化组件适配器
   await initComponentAdapter();
   // // 设置弹窗的默认配置
-  // setDefaultModalProps({
-  //   fullscreenButton: false,
-  // });
+  setDefaultModalProps({
+    fullscreenButton: false,
+  });
   // // 设置抽屉的默认配置
   // setDefaultDrawerProps({
   //   zIndex: 2000,

@@ -24,7 +24,9 @@ import type { HumanInfo } from '@vben/types';
 import type { VbenFormProps } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { Page, useVbenDrawer } from '@vben/common-ui';
+import { ref } from 'vue';
+
+import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
 import {
   departmentOptions,
   educationOptions,
@@ -32,19 +34,24 @@ import {
   genderOptions,
   workStatusOptions,
 } from '@vben/types';
-import { provide, ref } from 'vue';
-import { Button } from 'ant-design-vue';
+
+import { Button, message } from 'ant-design-vue';
 import dayjs from 'dayjs';
-import { message } from 'ant-design-vue';
+
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { fetchHumanList,activeEmp,inactiveEmp,selectById } from '#/api/human/human';
+import { activeEmp, fetchHumanList, inactiveEmp } from '#/api/human/human';
 import { mapEnumValue } from '#/api/utils/format';
 import ExtraDrawer from '#/views/utils/drawer/drawer.vue';
+
+import ExtraModal from './modal.vue';
 import Child from './overview.vue';
-import { genActiveStyle } from 'ant-design-vue/es/input/style';
+
+const [Modal, modalApi] = useVbenModal({
+  // 连接抽离的组件
+  connectedComponent: ExtraModal,
+});
 
 // 编辑抽屉
-
 const formOptions: VbenFormProps = {
   // 默认收起
   collapsed: true,
@@ -110,7 +117,7 @@ const formOptions: VbenFormProps = {
   // 按下回车时是否提交表单
   submitOnEnter: true,
 };
-const deptList = ref<{ dept: string; cnt: number }[]>([]);
+const deptList = ref<{ cnt: number; dept: string }[]>([]);
 const gridOptions: VxeGridProps<HumanInfo> = {
   checkboxConfig: {
     highlight: true,
@@ -235,10 +242,9 @@ const gridOptions: VxeGridProps<HumanInfo> = {
             pageSize: page.pageSize,
             ...formValues,
           });
-          // ({ cellValue }) => mapEnumValue(workStatusOptions, cellValue)
-          deptList.value = response.list.map(item => ({
+          deptList.value = response.list.map((item) => ({
             ...item,
-            dept: mapEnumValue(departmentOptions, item.dept) || item.dept
+            dept: mapEnumValue(departmentOptions, item.dept) || item.dept,
           }));
           return {
             items: response.data.records, // 关键字段映射
@@ -273,10 +279,18 @@ const [Grid, gridApi] = useVbenVxeGrid({
 const [Drawer, drawerApi] = useVbenDrawer({
   // 连接抽离的组件
   connectedComponent: ExtraDrawer,
-  onClosed(){
+  onClosed() {
     gridApi.reload();
-  }
+  },
 });
+
+function openModal(row) {
+  modalApi
+    .setData({
+      ...row,
+    })
+    .open();
+}
 
 function open(row: HumanInfo) {
   drawerApi
@@ -286,35 +300,35 @@ function open(row: HumanInfo) {
     .open();
 }
 
-function active(row: HumanInfo){
-  try{
+function active(row: HumanInfo) {
+  try {
     activeEmp(row);
     // console.log(response);
     message.info(`职工${row.cnName}启用成功`);
-  }catch(error){
+  } catch {
     message.error(`职工${row.cnName}启用失败`);
   }
-};
+}
 
-function inactive(row: HumanInfo){
-  try{
+function inactive(row: HumanInfo) {
+  try {
     inactiveEmp(row);
     // console.log(response);
     message.info(`职工${row.cnName}停用成功`);
-    }catch(error){
-      message.error(`职工${row.cnName}停用失败`);
+  } catch {
+    message.error(`职工${row.cnName}停用失败`);
   }
-};
+}
 
-function selectById(row: HumanInfo){
-  try{
-    const response = selectById(row);
-    console.log(response);
-    }catch(error){
-      message.error("查询失败");
-  }
-};
-
+// function foundById(row: HumanInfo) {
+//   try {
+//     debugger;
+//     const response = selectById(row);
+//     console.log(response);
+//   } catch {
+//     message.error('查询失败');
+//   }
+// }
 </script>
 
 <template>
@@ -334,7 +348,8 @@ function selectById(row: HumanInfo){
         <Button type="link" @click="open(row)"> 编辑 </Button>
         <Button type="link" @click="active(row)">启用</Button>
         <Button type="link" @click="inactive(row)">停用</Button>
-        <Button type="link" @click="selectById(row)">详情</Button>
+        <Button type="link" @click="openModal(row)">详情</Button>
+        <Modal />
       </template>
     </Grid>
   </Page>

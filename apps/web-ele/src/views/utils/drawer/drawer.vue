@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { nextTick, ref, watch } from 'vue';
+import { ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
 import {
@@ -10,25 +10,24 @@ import {
   marryOptions,
   workStatusOptions,
 } from '@vben/types';
+
 import { message } from 'ant-design-vue';
-import dayjs from 'dayjs';
 
 import { useVbenForm } from '#/adapter/form';
 import { submitHumanInfo } from '#/api/human/human';
-import { fi } from 'element-plus/es/locales.mjs';
 // import { isEqual } from 'lodash-es';
 
-const isDirty = ref(false);         // 记录数据是否被修改
-const isInitializing = ref(false);  // 标记是否处于初始化阶段
+const isDirty = ref(false); // 记录数据是否被修改
+const isInitializing = ref(false); // 标记是否处于初始化阶段
 
 const [Drawer, drawerApi] = useVbenDrawer({
   destroyOnClose: true,
   onCancel() {
     drawerApi.close();
   },
-async onConfirm() {
+  async onConfirm() {
     try {
-      if(!isDirty.value){
+      if (!isDirty.value) {
         drawerApi.close();
         return;
       }
@@ -37,7 +36,7 @@ async onConfirm() {
       formApi.resetForm();
       isDirty.value = false; // 提交后重置脏状态
       drawerApi.close();
-    } catch (error) {
+    } catch {
       drawerApi.close();
       message.error('提交失败');
     }
@@ -47,12 +46,12 @@ async onConfirm() {
       isInitializing.value = true; // 标记初始化开始
       const initialData = drawerApi.getData<Record<string, any>>() || {};
       formApi.setValues(initialData);
-    }else{
-          formApi.resetForm();
-          isDirty.value = false;
+    } else {
+      formApi.resetForm();
+      isDirty.value = false;
     }
   },
-  title: "员工信息"
+  title: '员工信息',
 });
 
 const [Form, formApi] = useVbenForm({
@@ -215,8 +214,9 @@ const [Form, formApi] = useVbenForm({
   ],
   wrapperClass: 'grid grid-cols-2 gap-4',
   showDefaultActions: false,
+  // eslint-disable-next-line unused-imports/no-unused-vars
   handleValuesChange(_values, fieldsChanged) {
-    if(isInitializing.value){
+    if (isInitializing.value) {
       // 判断是不是第一次进handleValuesChange
       isInitializing.value = false;
       return;
@@ -224,12 +224,9 @@ const [Form, formApi] = useVbenForm({
     isDirty.value = true;
   },
 });
-
 </script>
 <template>
-    <Drawer>
+  <Drawer>
     <Form />
   </Drawer>
 </template>
-
-
