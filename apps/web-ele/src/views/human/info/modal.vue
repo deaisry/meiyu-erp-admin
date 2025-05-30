@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { useVbenModal } from '@vben/common-ui';
+import { computed, ref } from 'vue';
 
-import { message } from 'ant-design-vue';
+import { useVbenModal } from '@vben/common-ui';
 import {
   departmentOptions,
   educationOptions,
@@ -9,213 +9,106 @@ import {
   genderOptions,
   marryOptions,
   workStatusOptions,
-} from '@vben/types';
-import { useVbenForm } from '#/adapter/form';
+} from '@vben/types'; // 请根据实际路径调整
 
-defineOptions({
-  name: 'FormModel',
-});
+// 定义完整的字段映射配置
+const fieldConfig = [
+  { key: 'id', label: '工号' },
+  { key: 'attendanceId', label: '考勤号' },
+  { key: 'cnName', label: '姓名' },
+  { key: 'sex', label: '性别', options: genderOptions },
+  { key: 'idNbr', label: '身份证号' },
+  { key: 'edu', label: '学历', options: educationOptions },
+  { key: 'nativePlace', label: '籍贯' },
+  { key: 'ethnicGroup', label: '民族' },
+  { key: 'isMarried', label: '婚姻状况', options: marryOptions },
+  { key: 'title', label: '职务' },
+  { key: 'employeeType', label: '用工性质', options: employmentTypeOptions },
+  { key: 'enterDate', label: '入职日期' },
+  { key: 'phone', label: '联系方式' },
+  { key: 'address', label: '家庭住址' },
+  { key: 'birthday', label: '出生日期' },
+  { key: 'dept', label: '部门', options: departmentOptions },
+  { key: 'isWork', label: '在职状态', options: workStatusOptions },
+];
 
-const [Form, formApi] = useVbenForm({
-  commonConfig: {
-    componentProps: {
-      class: 'w-full',
-    },
-  },
-  layout: 'vertical',
-  schema: [
-    {
-      component: 'Label',
-      // componentProps: {
-      //   disabled: true,
-      //   placeholder: '系统自动生成',
-      // },
-      fieldName: 'id',
-      label: '工号',
-    },
-    {
-      component: 'RadioGroup',
-      fieldName: 'isWork',
-      label: '在职状态',
-      componentProps: {
-        options: workStatusOptions,
-      },
-    },
-    {
-      component: 'Input',
-      componentProps: {
-        disabled: true,
-        placeholder: '系统自动生成',
-      },
-      fieldName: 'attendanceId',
-      label: '考勤号',
-    },
-    {
-      component: 'Select',
-      componentProps: {
-        options: departmentOptions,
-        placeholder: '请选择部门',
-        allowClear: true,
-        filterOption: true,
-        showSearch: true,
-      },
-      fieldName: 'dept',
-      label: '部门',
-    },
-    {
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入姓名',
-      },
-      fieldName: 'cnName',
-      label: '姓名',
-    },
-    {
-      component: 'RadioGroup',
-      componentProps: {
-        options: genderOptions,
-      },
-      fieldName: 'sex',
-      label: '性别',
-    },
-    {
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入身份证号',
-      },
-      fieldName: 'idNbr',
-      label: '身份证号',
-    },
-    {
-      component: 'Select',
-      componentProps: {
-        options: educationOptions,
-        placeholder: '请选择学历',
-        showSearch: true,
-      },
-      fieldName: 'edu',
-      label: '学历',
-    },
-    {
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入籍贯',
-      },
-      fieldName: 'nativePlace',
-      label: '籍贯',
-    },
-    {
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入民族',
-      },
-      fieldName: 'ethnicGroup',
-      label: '民族',
-    },
-    {
-      component: 'RadioGroup',
-      componentProps: {
-        options: marryOptions,
-      },
-      fieldName: 'isMarried',
-      label: '婚姻状况',
-    },
-    {
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入职务',
-      },
-      fieldName: 'title',
-      label: '职务',
-    },
-    {
-      component: 'Select',
-      componentProps: {
-        options: employmentTypeOptions,
-      },
-      fieldName: 'employeeType',
-      label: '用工性质',
-    },
-    {
-      component: 'DatePicker',
-      componentProps: {
-        format: 'YYYY-MM-DD',
-        valueFormat: 'YYYY-MM-DD',
-        placeholder: '请选择入职日期',
-      },
-      fieldName: 'enterDate',
-      label: '入职日期',
-    },
-    {
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入联系方式',
-      },
-      fieldName: 'phone',
-      label: '联系方式',
-    },
-    {
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入详细地址',
-        autoSize: { minRows: 2 },
-      },
-      fieldName: 'address',
-      label: '家庭住址',
-    },
-    {
-      component: 'DatePicker',
-      componentProps: {
-        format: 'YYYY-MM-DD',
-        valueFormat: 'YYYY-MM-DD',
-        placeholder: '请选择出生日期',
-      },
-      fieldName: 'birthday',
-      label: '出生日期',
-    },
-  ],
-  wrapperClass: 'grid grid-cols-2 gap-4',
-  showDefaultActions: true,
+const data = ref<Record<string, any>>({});
+
+// 计算属性：生成带描述信息的显示数据
+const displayData = computed(() => {
+  return fieldConfig.map((item) => {
+    const value = data.value?.[item.key] ?? '';
+    let displayValue = value;
+
+    // 处理枚举值转换
+    if (item.options && value !== undefined && value !== null) {
+      const option = item.options.find(
+        (opt) => String(opt.value) === String(value),
+      );
+      displayValue = option ? option.label : value;
+    }
+
+    return {
+      label: item.label,
+      value: displayValue || '未填写',
+      key: item.key,
+    };
+  });
 });
 
 const [Modal, modalApi] = useVbenModal({
-  fullscreenButton: false,
   onCancel() {
     modalApi.close();
   },
-  onConfirm: async () => {
-    await formApi.validateAndSubmitForm();
-    // modalApi.close();
+  onConfirm() {
+    console.info('onConfirm');
   },
   onOpenChange(isOpen: boolean) {
-    debugger;
     if (isOpen) {
-      const initialData = modalApi.getData<Record<string, any>>() || {};
-      formApi.setValues(initialData);
+      data.value = modalApi.getData<Record<string, any>>();
     }
   },
-  title: '内嵌表单示例',
 });
-
-// function onSubmit(values: Record<string, any>) {
-//   message.loading({
-//     content: '正在提交中...',
-//     duration: 0,
-//     key: 'is-form-submitting',
-//   });
-//   modalApi.lock();
-//   setTimeout(() => {
-//     modalApi.close();
-//     message.success({
-//       content: `提交成功：${JSON.stringify(values)}`,
-//       duration: 2,
-//       key: 'is-form-submitting',
-//     });
-//   }, 3000);
-// }
 </script>
+
 <template>
-  <Modal>
-    <Form />
+  <Modal title="员工信息详情">
+    <div class="info-container">
+      <div v-for="(item, index) in displayData" :key="index" class="info-row">
+        <div class="info-label">{{ item.label }}</div>
+        <div
+          class="info-value"
+          :class="{
+            'status-active': item.key === 'isWork' && data.isWork === '1',
+            'status-inactive': item.key === 'isWork' && data.isWork !== '1',
+          }"
+        >
+          {{ item.value }}
+        </div>
+      </div>
+    </div>
   </Modal>
 </template>
+
+<style scoped>
+.info-container {
+  padding: 16px;
+}
+
+.info-row {
+  display: flex;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  /* border-bottom: 1px dashed #f0f0f0; */
+}
+
+.info-label {
+  width: 120px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.info-value {
+  flex: 1;
+}
+</style>

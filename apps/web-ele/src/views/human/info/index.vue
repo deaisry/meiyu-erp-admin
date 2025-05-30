@@ -1,23 +1,3 @@
-<!--
- * @Author: deaisry
- * @Date: 2025-05-20 11:19:03
- * @LastEditors: e deaisry@163.com
- * @LastEditTime: 2025-05-30 10:00:10
- * @FilePath: \meiyu-erp-admin\apps\web-ele\src\views\human\info\index.vue
- * @Description:
- *
- * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
--->
-<!--
- * @Author: deaisry
- * @Date: 2025-05-20 11:19:03
- * @LastEditors: e deaisry@163.com
- * @LastEditTime: 2025-05-29 17:11:33
- * @FilePath: \meiyu-erp-admin\apps\web-ele\src\views\human\info\index.vue
- * @Description:
- *
- * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
--->
 <script lang="ts" setup>
 import type { HumanInfo } from '@vben/types';
 
@@ -45,7 +25,6 @@ import ExtraDrawer from '#/views/utils/drawer/drawer.vue';
 
 import ExtraFormModal from './modal.vue';
 import Child from './overview.vue';
-
 
 const formOptions: VbenFormProps = {
   // 默认收起
@@ -265,7 +244,7 @@ const gridOptions: VxeGridProps<HumanInfo> = {
     zoom: true,
   },
 };
-
+// 人事信息列表
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
@@ -280,20 +259,21 @@ const [Drawer, drawerApi] = useVbenDrawer({
   },
 });
 
-
 // 详情弹窗
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: ExtraFormModal,
 });
 
+// 打开详情弹窗
 function openModal(row: HumanInfo) {
   formModalApi
     .setData({
       ...row,
     })
     .open();
-};
+}
 
+// 打开编辑抽屉
 function open(row: HumanInfo) {
   drawerApi
     .setData({
@@ -302,6 +282,7 @@ function open(row: HumanInfo) {
     .open();
 }
 
+// 启用职工
 function active(row: HumanInfo) {
   try {
     activeEmp(row);
@@ -312,6 +293,7 @@ function active(row: HumanInfo) {
   }
 }
 
+// 停用职工
 function inactive(row: HumanInfo) {
   try {
     inactiveEmp(row);
@@ -321,7 +303,6 @@ function inactive(row: HumanInfo) {
     message.error(`职工${row.cnName}停用失败`);
   }
 }
-
 </script>
 
 <template>

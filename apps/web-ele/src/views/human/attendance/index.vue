@@ -1,27 +1,9 @@
-<script lang="ts" setup>
-import { useVbenModal, VbenButton } from '@vben/common-ui';
-
-import ExtraModal from './basicModal.vue';
-
-const [Modal, modalApi] = useVbenModal({
-  // 连接抽离的组件
-  connectedComponent: ExtraModal,
-});
-
-function openModal() {
-  modalApi
-    .setData({
-      content: '外部传递的数据 content',
-      payload: '外部传递的数据 payload',
-    })
-    .open();
-}
-</script>
-
-<template>
-  <div>
-    <Modal />
-
-    <VbenButton @click="openModal">Open</VbenButton>
-  </div>
-</template>
+<el-descriptions title="用户信息">
+    <el-descriptions-item label="用户名">kooriookami</el-descriptions-item>
+    <el-descriptions-item label="手机号">18100000000</el-descriptions-item>
+    <el-descriptions-item label="居住地">苏州市</el-descriptions-item>
+    <el-descriptions-item label="备注">
+      <el-tag size="small">学校</el-tag>
+    </el-descriptions-item>
+    <el-descriptions-item label="联系地址">江苏省苏州市吴中区吴中大道 1188 号</el-descriptions-item>
+</el-descriptions>
