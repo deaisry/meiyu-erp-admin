@@ -2,7 +2,7 @@
  * @Author: deaisry
  * @Date: 2025-05-20 11:19:03
  * @LastEditors: e deaisry@163.com
- * @LastEditTime: 2025-05-29 17:39:40
+ * @LastEditTime: 2025-05-30 10:00:10
  * @FilePath: \meiyu-erp-admin\apps\web-ele\src\views\human\info\index.vue
  * @Description:
  *
@@ -43,15 +43,10 @@ import { activeEmp, fetchHumanList, inactiveEmp } from '#/api/human/human';
 import { mapEnumValue } from '#/api/utils/format';
 import ExtraDrawer from '#/views/utils/drawer/drawer.vue';
 
-import ExtraModal from './modal.vue';
+import ExtraFormModal from './modal.vue';
 import Child from './overview.vue';
 
-const [Modal, modalApi] = useVbenModal({
-  // 连接抽离的组件
-  connectedComponent: ExtraModal,
-});
 
-// 编辑抽屉
 const formOptions: VbenFormProps = {
   // 默认收起
   collapsed: true,
@@ -276,6 +271,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions,
 });
 
+// 编辑抽屉
 const [Drawer, drawerApi] = useVbenDrawer({
   // 连接抽离的组件
   connectedComponent: ExtraDrawer,
@@ -284,13 +280,19 @@ const [Drawer, drawerApi] = useVbenDrawer({
   },
 });
 
-function openModal(row) {
-  modalApi
+
+// 详情弹窗
+const [FormModal, formModalApi] = useVbenModal({
+  connectedComponent: ExtraFormModal,
+});
+
+function openModal(row: HumanInfo) {
+  formModalApi
     .setData({
       ...row,
     })
     .open();
-}
+};
 
 function open(row: HumanInfo) {
   drawerApi
@@ -320,15 +322,6 @@ function inactive(row: HumanInfo) {
   }
 }
 
-// function foundById(row: HumanInfo) {
-//   try {
-//     debugger;
-//     const response = selectById(row);
-//     console.log(response);
-//   } catch {
-//     message.error('查询失败');
-//   }
-// }
 </script>
 
 <template>
@@ -349,7 +342,7 @@ function inactive(row: HumanInfo) {
         <Button type="link" @click="active(row)">启用</Button>
         <Button type="link" @click="inactive(row)">停用</Button>
         <Button type="link" @click="openModal(row)">详情</Button>
-        <Modal />
+        <FormModal />
       </template>
     </Grid>
   </Page>

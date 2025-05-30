@@ -1,3 +1,13 @@
+<!--
+ * @Author: deaisry
+ * @Date: 2025-05-15 10:50:49
+ * @LastEditors: e deaisry@163.com
+ * @LastEditTime: 2025-05-30 09:45:28
+ * @FilePath: \meiyu-erp-admin\playground\src\views\examples\modal\index.vue
+ * @Description:
+ *
+ * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
+-->
 <script lang="ts" setup>
 import { onBeforeUnmount } from 'vue';
 

@@ -42,6 +42,7 @@ const [Drawer, drawerApi] = useVbenDrawer({
     }
   },
   onOpenChange(isOpen: boolean) {
+    debugger;
     if (isOpen) {
       isInitializing.value = true; // 标记初始化开始
       const initialData = drawerApi.getData<Record<string, any>>() || {};
