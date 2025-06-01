@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { HumanInfo } from '@vben/types';
+
 import { ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
@@ -31,7 +33,7 @@ const [Drawer, drawerApi] = useVbenDrawer({
         drawerApi.close();
         return;
       }
-      await submitHumanInfo(await formApi.submitForm());
+      await submitHumanInfo((await formApi.submitForm()) as HumanInfo);
       message.success('提交成功');
       formApi.resetForm();
       isDirty.value = false; // 提交后重置脏状态

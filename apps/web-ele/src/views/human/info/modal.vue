@@ -9,9 +9,11 @@ import {
   genderOptions,
   marryOptions,
   workStatusOptions,
-} from '@vben/types'; // 请根据实际路径调整
+} from '@vben/types';
 
-// 定义完整的字段映射配置
+import { ElDescriptions, ElDescriptionsItem } from 'element-plus';
+
+// 定义字段配置
 const fieldConfig = [
   { key: 'id', label: '工号' },
   { key: 'attendanceId', label: '考勤号' },
@@ -26,21 +28,20 @@ const fieldConfig = [
   { key: 'employeeType', label: '用工性质', options: employmentTypeOptions },
   { key: 'enterDate', label: '入职日期' },
   { key: 'phone', label: '联系方式' },
-  { key: 'address', label: '家庭住址' },
   { key: 'birthday', label: '出生日期' },
   { key: 'dept', label: '部门', options: departmentOptions },
   { key: 'isWork', label: '在职状态', options: workStatusOptions },
+  { key: 'address', label: '家庭住址' },
 ];
 
 const data = ref<Record<string, any>>({});
 
-// 计算属性：生成带描述信息的显示数据
+// 计算显示数据
 const displayData = computed(() => {
   return fieldConfig.map((item) => {
     const value = data.value?.[item.key] ?? '';
     let displayValue = value;
 
-    // 处理枚举值转换
     if (item.options && value !== undefined && value !== null) {
       const option = item.options.find(
         (opt) => String(opt.value) === String(value),
@@ -49,14 +50,15 @@ const displayData = computed(() => {
     }
 
     return {
-      label: item.label,
+      ...item,
       value: displayValue || '未填写',
-      key: item.key,
     };
   });
 });
 
 const [Modal, modalApi] = useVbenModal({
+  showCancelButton: false,
+  showConfirmButton: false,
   onCancel() {
     modalApi.close();
   },
@@ -73,42 +75,15 @@ const [Modal, modalApi] = useVbenModal({
 
 <template>
   <Modal title="员工信息详情">
-    <div class="info-container">
-      <div v-for="(item, index) in displayData" :key="index" class="info-row">
-        <div class="info-label">{{ item.label }}</div>
-        <div
-          class="info-value"
-          :class="{
-            'status-active': item.key === 'isWork' && data.isWork === '1',
-            'status-inactive': item.key === 'isWork' && data.isWork !== '1',
-          }"
-        >
-          {{ item.value }}
-        </div>
-      </div>
-    </div>
+    <ElDescriptions :column="2">
+      <ElDescriptionsItem
+        v-for="(item, index) in displayData"
+        :key="index"
+        :label="item.label"
+      >
+        {{ item.value }}
+      </ElDescriptionsItem>
+    </ElDescriptions>
   </Modal>
 </template>
-
-<style scoped>
-.info-container {
-  padding: 16px;
-}
-
-.info-row {
-  display: flex;
-  margin-bottom: 16px;
-  padding-bottom: 16px;
-  /* border-bottom: 1px dashed #f0f0f0; */
-}
-
-.info-label {
-  width: 120px;
-  font-weight: 500;
-  flex-shrink: 0;
-}
-
-.info-value {
-  flex: 1;
-}
-</style>
+<style scoped></style>

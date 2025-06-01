@@ -1,13 +1,14 @@
 export type * from './base/BasePagination';
 export type * from './base/BaseResponse';
+export type * from './base/OverviewPaginationResult';
 export type * from './base/PaginationParams';
 export type * from './base/PaginationResponse';
-export type * from './base/OverviewPaginationResult';
 export type * from './base/PaginationResult';
 export * from './enum';
 export type * from './human/DeptCount';
 export type * from './human/HumanApiResponse';
 export type * from './human/HumanInfo';
 export type * from './PageResult';
+export type * from './type/typing';
 export type * from './user';
 export type * from '@vben-core/typings';

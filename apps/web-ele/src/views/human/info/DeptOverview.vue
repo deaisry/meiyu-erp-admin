@@ -13,7 +13,7 @@ import type { DeptOverviewItem } from '@vben/types';
 
 import { onMounted } from 'vue';
 
-import { Card, CardContent, VbenCountToAnimator } from '@vben-core/shadcn-ui';
+// import { Card, CardContent, VbenCountToAnimator } from '@vben-core/shadcn-ui';
 
 interface Props {
   items?: DeptOverviewItem[];

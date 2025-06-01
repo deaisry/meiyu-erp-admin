@@ -21,10 +21,10 @@ import dayjs from 'dayjs';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { activeEmp, fetchHumanList, inactiveEmp } from '#/api/human/human';
 import { mapEnumValue } from '#/api/utils/format';
-import ExtraDrawer from '#/views/utils/drawer/drawer.vue';
+import ExtraDrawer from '#/views/human/info/drawer.vue';
 
 import ExtraFormModal from './modal.vue';
-import Child from './overview.vue';
+import Overview from './overview.vue';
 
 const formOptions: VbenFormProps = {
   // 默认收起
@@ -288,6 +288,7 @@ function active(row: HumanInfo) {
     activeEmp(row);
     // console.log(response);
     message.info(`职工${row.cnName}启用成功`);
+    gridApi.reload();
   } catch {
     message.error(`职工${row.cnName}启用失败`);
   }
@@ -299,6 +300,7 @@ function inactive(row: HumanInfo) {
     inactiveEmp(row);
     // console.log(response);
     message.info(`职工${row.cnName}停用成功`);
+    gridApi.reload();
   } catch {
     message.error(`职工${row.cnName}停用失败`);
   }
@@ -308,20 +310,28 @@ function inactive(row: HumanInfo) {
 <template>
   <Page auto-content-height>
     <Drawer />
-    <Child :dept-list="deptList" />
+    <Overview :dept-list="deptList" />
     <Grid>
-      <template #toolbar-actions>
+      <!-- <template #toolbar-actions>
         <Button class="mr-2" type="primary" @click="() => gridApi.query()">
           刷新当前页面
         </Button>
         <Button type="primary" @click="() => gridApi.reload()">
           刷新并返回第一页
         </Button>
-      </template>
+      </template> -->
       <template #action="{ row }">
         <Button type="link" @click="open(row)"> 编辑 </Button>
-        <Button type="link" @click="active(row)">启用</Button>
-        <Button type="link" @click="inactive(row)">停用</Button>
+        <Button type="link" :disabled="row.isWork === '1'" @click="active(row)">
+          启用
+        </Button>
+        <Button
+          type="link"
+          :disabled="row.isWork === '0'"
+          @click="inactive(row)"
+        >
+          停用
+        </Button>
         <Button type="link" @click="openModal(row)">详情</Button>
         <FormModal />
       </template>

@@ -1,9 +1,31 @@
-<el-descriptions title="用户信息">
-    <el-descriptions-item label="用户名">kooriookami</el-descriptions-item>
-    <el-descriptions-item label="手机号">18100000000</el-descriptions-item>
-    <el-descriptions-item label="居住地">苏州市</el-descriptions-item>
-    <el-descriptions-item label="备注">
-      <el-tag size="small">学校</el-tag>
-    </el-descriptions-item>
-    <el-descriptions-item label="联系地址">江苏省苏州市吴中区吴中大道 1188 号</el-descriptions-item>
-</el-descriptions>
+<script lang="ts" setup>
+import { ElCard, ElCol, ElRow } from 'element-plus';
+</script>
+
+<template>
+  <ElRow :gutter="12">
+    <ElCol :span="8">
+      <ElCard shadow="always"> 总是显示 </ElCard>
+    </ElCol>
+    <ElCol :span="8">
+      <ElCard shadow="hover"> 鼠标悬浮时显示 </ElCard>
+    </ElCol>
+    <ElCol :span="8">
+      <ElCard shadow="never"> 从不显示 </ElCard>
+    </ElCol>
+  </ElRow>
+</template>
+
+<style>
+.text {
+  font-size: 14px;
+}
+
+.item {
+  padding: 18px 0;
+}
+
+.box-card {
+  width: 480px;
+}
+</style>

@@ -1,15 +1,12 @@
 <script lang="ts" setup>
-import type { DeptOverviewItem } from '@vben/common-ui';
-import { computed } from 'vue'
+import { computed } from 'vue';
 
-import {
-  DeptOverview,
-} from '@vben/common-ui';
+import { DeptOverview } from '@vben/common-ui';
 
 // const deptList = inject('deptData', () => [])
 
 const props = defineProps<{
-  deptList: Array<{ dept: string; cnt: number }>
+  deptList: Array<{ cnt: number; dept: string }>;
 }>();
 
 const overviewItems = computed(() => props.deptList);
