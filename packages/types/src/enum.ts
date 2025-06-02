@@ -37,6 +37,27 @@ export enum EducationEnum {
   Undergraduate = '4',
 }
 
+export enum MeetingTypeEunm {
+  other = '0',
+  weekly = '1',
+  product = '2',
+  quality = '3',
+  supplier = '4',
+  engineer = '5',
+  management = '6',
+}
+
+export enum MeetingPlaceEnum{
+  other = '0',
+  kjpRoom = '1',
+  floor2Room = '2',
+}
+
+export enum MeetingConveneEnum{
+  notConvene = '0',
+  isConvene = '1',
+}
+
 type EnumOption<T extends number | string> = {
   label: string;
   value: T;
@@ -104,3 +125,25 @@ export const marryOptions = createEnumOptions(MarryStatusEnum, {
   isMarried: '已婚',
   unMarried: '未婚',
 });
+
+// 会议类型：0-其他会议、1-每周工作总结会议、2-生产/品质物料会议、3-品质改进小组会议、4-每月供应商周期评审、5-工程会议、6-管理模式推行会议
+export const meetingTypeOptions = createEnumOptions(MeetingTypeEunm,{
+  other:'其他会议',
+  weekly:'每周工作总结会议',
+  product:'生产/品质物料会议',
+  quality:'品质改进小组会议',
+  supplier:'每月供应商周期评审',
+  engineer:'工程会议',
+  management:'管理模式推行会议',
+})
+
+export const meetingPlaceOptions = createEnumOptions(MeetingPlaceEnum,{
+  other : '其他',
+  kjpRoom : '一楼会议室',
+  floor2Room:'二楼会议室'
+})
+
+export const meetingConveneOptions = createEnumOptions(MeetingConveneEnum,{
+  notConvene:'未召开',
+  isConvene:'已召开'
+})

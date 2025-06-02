@@ -8,6 +8,7 @@ export * from './enum';
 export type * from './human/DeptCount';
 export type * from './human/HumanApiResponse';
 export type * from './human/HumanInfo';
+export type * from './meeting/MeetingInfo';
 export type * from './PageResult';
 export type * from './type/typing';
 export type * from './user';
