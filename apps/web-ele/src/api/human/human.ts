@@ -1,18 +1,9 @@
-/*
- * @Author: deaisry
- * @Date: 2025-05-20 15:25:06
- * @LastEditors: e deaisry@163.com
- * @LastEditTime: 2025-05-29 16:11:00
- * @FilePath: \meiyu-erp-admin\apps\web-ele\src\api\human\human.ts
- * @Description:
- *
- * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
- */
 import type {
   BaseResponse,
   HumanInfo,
   OverviewPaginationResult,
   PaginationParams,
+  BaseResponseData,
 } from '@vben/types';
 
 import { requestClient } from '#/api/request';
@@ -44,4 +35,8 @@ export async function inactiveEmp(data: HumanInfo) {
 
 export async function selectById(data: HumanInfo) {
   return await requestClient.post<BaseResponse>('/human/selectById', data);
+}
+
+export async function selectDeptMem(){
+  return await requestClient.get<BaseResponseData>('/human/findDeptMem');
 }

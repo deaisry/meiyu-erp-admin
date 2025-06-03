@@ -22,6 +22,7 @@ import { mapEnumValue } from '#/api/utils/format';
 import ExtraDrawer from '#/views/meeting/drawer.vue';
 
 import ExtraFormModal from './modal.vue';
+import ExtraAddFormModal from './add.vue';
 import Overview from './overview.vue';
 
 const formOptions: VbenFormProps = {
@@ -69,7 +70,6 @@ const formOptions: VbenFormProps = {
   // 按下回车时是否提交表单
   submitOnEnter: true,
 };
-const deptList = ref<{ cnt: number; dept: string }[]>([]);
 const gridOptions: VxeGridProps<MeetingInfo> = {
   checkboxConfig: {
     highlight: true,
@@ -104,6 +104,11 @@ const gridOptions: VxeGridProps<MeetingInfo> = {
       title: '会议地点',
       formatter: ({ cellValue }) => mapEnumValue(meetingPlaceOptions, cellValue),
       width: 80,
+    },
+    {
+      field:'meetingTime',
+      title:'会议时间',
+      width:180,
     },
     {
       field: 'participants',
@@ -187,6 +192,11 @@ const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: ExtraFormModal,
 });
 
+// 新增弹窗
+const [AddFormModal,addFormModalApi] = useVbenModal({
+  connectedComponent:ExtraAddFormModal,
+});
+
 // 打开详情弹窗
 function openModal(row: MeetingInfo) {
   formModalApi
@@ -203,6 +213,10 @@ function open(row: MeetingInfo) {
       ...row, // 传递整个行数据
     })
     .open();
+}
+
+function openAdd(){
+  addFormModalApi.open();
 }
 
 // // 启用职工
@@ -239,6 +253,12 @@ function onDelete(row:MeetingInfo){
   <Page auto-content-height>
     <Drawer />
     <Grid>
+      <template #toolbar-actions>
+        <Button class="mr-2" type="primary" @click="() => openAdd()">
+          新建会议
+        </Button>
+        <AddFormModal/>
+      </template>
       <template #action="{ row }">
         <Button type="link" @click="open(row)"> 编辑 </Button>
         <Button type="link" @click="onDelete(row)"> 删除 </Button>

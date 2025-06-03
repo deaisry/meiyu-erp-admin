@@ -1,27 +1,18 @@
 <script lang="ts" setup>
-import type { HumanInfo } from '@vben/types';
-
 import { ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
 import {
-  departmentOptions,
-  educationOptions,
-  employmentTypeOptions,
-  genderOptions,
-  marryOptions,
-  workStatusOptions,
   meetingTypeOptions,
   meetingPlaceOptions,
   meetingConveneOptions,
 } from '@vben/types';
 
 import { message } from 'ant-design-vue';
-
+import { ElDatePicker} from 'element-plus';
 import { useVbenForm } from '#/adapter/form';
-import { submitHumanInfo } from '#/api/human/human';
+import type {MeetingInfo} from '@vben/types'
 import { submitMeetingInfo } from '#/api/meeting/meeting'
-// import { isEqual } from 'lodash-es';
 
 const isDirty = ref(false); // 记录数据是否被修改
 const isInitializing = ref(false); // 标记是否处于初始化阶段
@@ -37,10 +28,15 @@ const [Drawer, drawerApi] = useVbenDrawer({
         drawerApi.close();
         return;
       }
-      await submitMeetingInfo((await formApi.submitForm()) as MeetingInfo);
-      message.success('提交成功');
-      formApi.resetForm();
-      isDirty.value = false; // 提交后重置脏状态
+      const response = submitMeetingInfo((await formApi.submitForm()) as MeetingInfo);
+      if((await response).state == 200){
+        message.success('提交成功');
+        formApi.resetForm();
+        isDirty.value = false; // 提交后重置脏状态
+      }else{
+        message.error('提交失败');
+      }
+
       drawerApi.close();
     } catch {
       drawerApi.close();
@@ -48,7 +44,6 @@ const [Drawer, drawerApi] = useVbenDrawer({
     }
   },
   onOpenChange(isOpen: boolean) {
-    debugger;
     if (isOpen) {
       isInitializing.value = true; // 标记初始化开始
       const initialData = drawerApi.getData<Record<string, any>>() || {};
@@ -113,6 +108,25 @@ const [Form, formApi] = useVbenForm({
       },
       fieldName: 'meetingPlace',
       label: '会议地点',
+    },
+    {
+      component:'Input',
+      componentProps:{
+        placeholder:'请选择与会人',
+      },
+      fieldName:'participants',
+      label:'与会人员',
+    },
+    {
+      component: 'DatePicker',
+      fieldName: 'meetingTime',
+      label: '会议时间',
+      componentProps: {
+        format: 'YYYY-MM-DD HH:mm',    // 显示格式（不需要秒）
+        valueFormat: 'YYYY-MM-DD HH:mm:ss', // 绑定值格式（带秒）
+        placeholder: '请选择会议时间',
+        type:'datetime',  
+      }
     },
     {
       component: 'Input',

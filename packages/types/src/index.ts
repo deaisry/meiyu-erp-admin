@@ -3,6 +3,7 @@ export type * from './base/BaseResponse';
 export type * from './base/OverviewPaginationResult';
 export type * from './base/PaginationParams';
 export type * from './base/PaginationResponse';
+export type * from './base/BaseResponseData';
 export type * from './base/PaginationResult';
 export * from './enum';
 export type * from './human/DeptCount';
