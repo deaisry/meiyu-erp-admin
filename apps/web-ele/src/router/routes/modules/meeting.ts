@@ -2,7 +2,7 @@
  * @Author: deaisry
  * @Date: 2025-06-02 10:35:18
  * @LastEditors: e deaisry@163.com
- * @LastEditTime: 2025-06-02 10:35:58
+ * @LastEditTime: 2025-06-05 11:00:14
  * @FilePath: \meiyu-erp-admin\apps\web-ele\src\router\routes\modules\meeting.ts
  * @Description:
  *
@@ -23,6 +23,24 @@ const routes: RouteRecordRaw[] = [
     path: '/meeting',
     component: () => import('#/views/meeting/index.vue'),
   },
+  {
+    path: '/meeting/add',
+    name: 'MeetingAdd',
+    component: () => import('#/views/meeting/add.vue'),
+    meta: {
+      title: '新建会议',
+      hideInMenu: true,
+    },
+  },
+  {
+    path: '/meeting/detail/:meetingId',
+    name: 'MeetingDetail',
+    component: () => import('#/views/meeting/detail.vue'),
+    meta: {
+      title: '会议详情',
+      hideInMenu: true,
+    },
+  }
 ];
 
 export default routes;

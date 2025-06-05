@@ -312,14 +312,6 @@ function inactive(row: HumanInfo) {
     <Drawer />
     <Overview :dept-list="deptList" />
     <Grid>
-      <!-- <template #toolbar-actions>
-        <Button class="mr-2" type="primary" @click="() => gridApi.query()">
-          刷新当前页面
-        </Button>
-        <Button type="primary" @click="() => gridApi.reload()">
-          刷新并返回第一页
-        </Button>
-      </template> -->
       <template #action="{ row }">
         <Button type="link" @click="open(row)"> 编辑 </Button>
         <Button type="link" :disabled="row.isWork === '1'" @click="active(row)">

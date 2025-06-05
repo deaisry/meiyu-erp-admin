@@ -5,7 +5,7 @@ import type { VbenFormProps } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
 import { ref } from 'vue';
-
+import { useRouter } from 'vue-router'
 import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
 import {
   meetingTypeOptions,
@@ -21,10 +21,11 @@ import { fetchMeetingList} from '#/api/meeting/meeting';
 import { mapEnumValue } from '#/api/utils/format';
 import ExtraDrawer from '#/views/meeting/drawer.vue';
 
-import ExtraFormModal from './modal.vue';
-import ExtraAddFormModal from './add.vue';
-import Overview from './overview.vue';
+import ExtraFormModal from './detail.vue';
+// import ExtraAddFormModal from './add.vue';
+// import Overview from './overview.vue';
 
+const router = useRouter()
 const formOptions: VbenFormProps = {
   // 默认收起
   collapsed: true,
@@ -82,11 +83,6 @@ const gridOptions: VxeGridProps<MeetingInfo> = {
       type: 'seq',
       width: 50,
     },
-    // {
-    //   field: 'meetingId',
-    //   title: '会议编号',
-    //   width: 120,
-    // },
     {
       field: 'meetingType',
       title: '会议类型',
@@ -120,12 +116,12 @@ const gridOptions: VxeGridProps<MeetingInfo> = {
       title: '会议纪要',
       width:120
     },
-        {
-      field: 'isConvene',
-      title: '召开状态',
-      width: 80,
-      formatter: ({ cellValue }) => mapEnumValue(meetingConveneOptions, cellValue),
-    },
+    // {
+    //   field: 'isConvene',
+    //   title: '召开状态',
+    //   width: 80,
+    //   formatter: ({ cellValue }) => mapEnumValue(meetingConveneOptions, cellValue),
+    // },
     {
       field: 'comment',
       title: '备注',
@@ -192,18 +188,14 @@ const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: ExtraFormModal,
 });
 
-// 新增弹窗
-const [AddFormModal,addFormModalApi] = useVbenModal({
-  connectedComponent:ExtraAddFormModal,
-});
-
 // 打开详情弹窗
-function openModal(row: MeetingInfo) {
-  formModalApi
-    .setData({
-      ...row,
-    })
-    .open();
+function openDetail(row: MeetingInfo) {
+    router.push({
+    name: 'MeetingDetail',
+    params: {
+      meetingId: row.meetingId
+    }
+  });
 }
 
 // 打开编辑抽屉
@@ -215,33 +207,10 @@ function open(row: MeetingInfo) {
     .open();
 }
 
+// 跳转至新增页面
 function openAdd(){
-  addFormModalApi.open();
+  router.push('/meeting/add')
 }
-
-// // 启用职工
-// function active(row: HumanInfo) {
-//   try {
-//     activeEmp(row);
-//     // console.log(response);
-//     message.info(`职工${row.cnName}启用成功`);
-//     gridApi.reload();
-//   } catch {
-//     message.error(`职工${row.cnName}启用失败`);
-//   }
-// }
-
-// // 停用职工
-// function inactive(row: HumanInfo) {
-//   try {
-//     inactiveEmp(row);
-//     // console.log(response);
-//     message.info(`职工${row.cnName}停用成功`);
-//     gridApi.reload();
-//   } catch {
-//     message.error(`职工${row.cnName}停用失败`);
-//   }
-// }
 
 // 删除
 function onDelete(row:MeetingInfo){
@@ -257,13 +226,11 @@ function onDelete(row:MeetingInfo){
         <Button class="mr-2" type="primary" @click="() => openAdd()">
           新建会议
         </Button>
-        <AddFormModal/>
       </template>
       <template #action="{ row }">
         <Button type="link" @click="open(row)"> 编辑 </Button>
         <Button type="link" @click="onDelete(row)"> 删除 </Button>
-        <Button type="link" @click="openModal(row)">详情</Button>
-        <FormModal />
+        <Button type="link" @click="openDetail(row)">详情</Button>
       </template>
     </Grid>
   </Page>

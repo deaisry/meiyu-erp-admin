@@ -42,78 +42,19 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch, onMounted } from 'vue'
-import { ElCascader } from 'element-plus'
-import type { CascaderValue, CascaderProps } from 'element-plus'
+import { ref, computed, watch, onMounted } from 'vue';
+import { ElCascader } from 'element-plus';
+import type { CascaderValue, CascaderProps } from 'element-plus';
 import { selectDeptMem } from '#/api/human/human';
 import { departmentNameMap } from '@vben/types';
 
-
-const departmentEmployeeData = ref({});
-const departmentNames = ref(departmentNameMap);
-
-  // 使用 ref 存储参与者组件属性
-  const participantsProps = ref({
-    sourceData: {} as Record<string, string[]>,
-    departmentNames: departmentNames.value,
-    placeholder: '请选择部门/人员',
-    multiple: true,
-    filterable: true,
-    clearable: true
-  });
-  // 状态管理
-  const loading = ref(false); // 初始不显示加载状态
-  const error = ref(false);
-  const errorMessage = ref('');
-  const formInitialized = ref(false);
-
-  // 加载部门人员数据
-  const fetchDepartmentData = async () => {
-    try {
-      loading.value = true;
-      error.value = false;
-      errorMessage.value = '';
-      
-      // 调用API获取数据
-      const response = await selectDeptMem();
-      
-      // 处理API响应
-      if (response.state === 200 && response.data) {
-        departmentEmployeeData.value = response.data;
-        formInitialized.value = true;
-      } else {
-        throw new Error(response.message || '加载部门人员数据失败');
-      }
-    } catch (err: any) {
-      error.value = true;
-      errorMessage.value = err.message || '网络请求失败，请稍后再试';
-      console.error('加载部门人员数据失败:', err);
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  // 页面加载时获取数据
-  onMounted(() => {
-    fetchDepartmentData();
-  });
-
-// 当部门数据变化时更新组件属性 - 优化后的 watch 函数
-watch(
-  () => departmentEmployeeData.value, 
-  (newData) => {
-    debugger;
-    if (Object.keys(newData).length > 0) {
-      participantsProps.value = {
-        ...participantsProps.value,
-        sourceData: newData
-      };
-    }
-  },
-  { deep: true, immediate: true }
-);
 // 定义组件属性
 const props = defineProps({
+  // 新增：是否自动加载数据
+  autoLoad: {
+    type: Boolean,
+    default: true 
+  },
   // 源数据格式: { 部门ID: [员工姓名列表] }
   sourceData: {
     type: Object as () => Record<string, string[]>,
@@ -161,6 +102,40 @@ const props = defineProps({
     default: true
   }
 })
+// 新增：数据加载状态
+const loading = ref(false)
+const error = ref(false)
+const errorMessage = ref('')
+const departmentEmployeeData = ref<Record<string, string[]>>({}) // 新增数据存储
+
+// 新增：自动加载部门人员数据
+const fetchDepartmentData = async () => {
+  if (!props.autoLoad) return
+  
+  try {
+    loading.value = true
+    error.value = false
+    errorMessage.value = ''
+    
+    const response = await selectDeptMem()
+    if (response.state === 200 && response.data) {
+      departmentEmployeeData.value = response.data
+    } else {
+      throw new Error(response.message || '加载部门人员数据失败')
+    }
+  } catch (err: any) {
+    error.value = true
+    errorMessage.value = err.message || '网络请求失败，请稍后再试'
+    console.error('加载部门人员数据失败:', err)
+  } finally {
+    loading.value = false
+  }
+}
+
+// 新增：挂载时自动加载数据
+onMounted(() => {
+  fetchDepartmentData()
+})
 
 // 定义事件
 const emit = defineEmits(['update:modelValue', 'change'])
@@ -171,13 +146,15 @@ const selectedValue = ref<CascaderValue>(props.modelValue)
 // 监听外部传入的modelValue变化
 watch(() => props.modelValue, (newVal) => {
   if (Array.isArray(newVal)) {
+    const tmp = getSelectedEmployees();
+    const tmpDept = getSelectedDepartments();
     selectedValue.value = newVal
   }
 })
 
 // 级联选择器配置
 const cascaderProps: CascaderProps = {
-  expandTrigger: 'hover',
+  // expandTrigger: 'hover',// 悬停展开
   emitPath: false,
   checkStrictly: false,
   multiple: props.multiple
@@ -186,33 +163,25 @@ const cascaderProps: CascaderProps = {
 // 转换数据为级联选择器需要的树形结构
 const cascaderOptions = computed(() => {
   const options: any[] = []
+  const sourceData = props.autoLoad ? departmentEmployeeData.value : props.sourceData
+  const deptNames = props.autoLoad ? departmentNameMap : props.departmentNames
   
   try {
-    // 验证数据源
-    if (!props.sourceData || typeof props.sourceData !== 'object') {
-      console.warn('部门-员工数据源无效:', props.sourceData)
+    if (!sourceData || typeof sourceData !== 'object') {
+      console.warn('部门-员工数据源无效:', sourceData)
       return options
     }
-    
-    // 遍历部门数据
-    for (const [deptId, employees] of Object.entries(props.sourceData)) {
-      // 获取部门名称
-      const deptName = props.departmentNames[deptId] || `部门${deptId}`
-      
-      // 创建部门节点
+    for (const [deptId, employees] of Object.entries(sourceData)) {
+      const deptName = deptNames[deptId] || `部门${deptId}`
       const deptNode = {
-        value: `dept_${deptId}`, // 使用前缀区分部门
+        value: `dept_${deptId}`,
         label: deptName,
         level: 0,
         children: [] as any[]
       }
-      
-      // 添加员工节点
       if (Array.isArray(employees)) {
         employees.forEach(employee => {
-          // 生成唯一标识: 部门ID + 员工姓名
           const uniqueValue = `${deptId}_${employee}`
-          
           deptNode.children.push({
             value: uniqueValue,
             label: employee,
@@ -251,7 +220,6 @@ function handleChange(value: CascaderValue) {
 function getSelectedEmployees() {
   try {
     if (!Array.isArray(selectedValue.value)) return []
-    
     return selectedValue.value.map(item => {
       // 提取员工姓名 (格式: 部门ID_员工姓名)
       const parts = String(item).split('_')

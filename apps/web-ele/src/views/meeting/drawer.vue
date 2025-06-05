@@ -14,6 +14,16 @@ import { useVbenForm } from '#/adapter/form';
 import type {MeetingInfo} from '@vben/types'
 import { submitMeetingInfo } from '#/api/meeting/meeting'
 
+// 引入部门员工层级下拉菜单组件
+import DepartmentEmployeeSelect from '#/views/utils/DepartmentEmployeeSelect.vue';
+const participantsProps = ref({
+  autoLoad: true, // 启用自动加载数据
+  placeholder: '请选择部门/人员',
+  multiple: true,
+  filterable: true,
+  clearable: true
+})
+
 const isDirty = ref(false); // 记录数据是否被修改
 const isInitializing = ref(false); // 标记是否处于初始化阶段
 
@@ -110,12 +120,11 @@ const [Form, formApi] = useVbenForm({
       label: '会议地点',
     },
     {
-      component:'Input',
-      componentProps:{
-        placeholder:'请选择与会人',
-      },
-      fieldName:'participants',
-      label:'与会人员',
+      component: DepartmentEmployeeSelect,
+      fieldName: 'participants',
+      label: '与会人员',
+      componentProps: participantsProps, // 直接传递 ref 对象
+      rules: 'required',
     },
     {
       component: 'DatePicker',

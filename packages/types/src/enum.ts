@@ -147,3 +147,8 @@ export const meetingConveneOptions = createEnumOptions(MeetingConveneEnum,{
   notConvene:'未召开',
   isConvene:'已召开'
 })
+
+
+export const departmentNameMap = Object.fromEntries(
+  departmentOptions.map(opt => [opt.value, opt.label])
+) as Record<`${DepartmentEnum}`, string>;
