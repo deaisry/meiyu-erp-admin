@@ -1,31 +1,22 @@
 <script lang="ts" setup>
-import type {MeetingInfo } from '@vben/types';
+import type { MeetingInfo } from '@vben/types';
 
 import type { VbenFormProps } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { ref } from 'vue';
-import { useRouter } from 'vue-router'
-import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
-import {
-  meetingTypeOptions,
-  meetingPlaceOptions,
-  meetingConveneOptions,
-} from '@vben/types';
+import { useRouter } from 'vue-router';
+
+import { Page, useVbenDrawer } from '@vben/common-ui';
+import { meetingPlaceOptions, meetingTypeOptions } from '@vben/types';
 
 import { Button, message } from 'ant-design-vue';
-import dayjs from 'dayjs';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { fetchMeetingList} from '#/api/meeting/meeting';
+import { fetchMeetingList } from '#/api/meeting/meeting';
 import { mapEnumValue } from '#/api/utils/format';
 import ExtraDrawer from '#/views/meeting/drawer.vue';
 
-import ExtraFormModal from './detail.vue';
-// import ExtraAddFormModal from './add.vue';
-// import Overview from './overview.vue';
-
-const router = useRouter()
+const router = useRouter();
 const formOptions: VbenFormProps = {
   // 默认收起
   collapsed: true,
@@ -93,28 +84,29 @@ const gridOptions: VxeGridProps<MeetingInfo> = {
     {
       field: 'meetingName',
       title: '会议名称',
-      width: 100,
+      width: 300,
     },
     {
       field: 'meetingPlace',
       title: '会议地点',
-      formatter: ({ cellValue }) => mapEnumValue(meetingPlaceOptions, cellValue),
+      formatter: ({ cellValue }) =>
+        mapEnumValue(meetingPlaceOptions, cellValue),
       width: 80,
     },
     {
-      field:'meetingTime',
-      title:'会议时间',
-      width:180,
+      field: 'meetingTime',
+      title: '会议时间',
+      width: 180,
     },
     {
       field: 'participants',
       title: '与会人员',
-      width: 180,
+      width: 300,
     },
     {
       field: 'meetingContent',
       title: '会议纪要',
-      width:120
+      width: 300,
     },
     // {
     //   field: 'isConvene',
@@ -122,6 +114,11 @@ const gridOptions: VxeGridProps<MeetingInfo> = {
     //   width: 80,
     //   formatter: ({ cellValue }) => mapEnumValue(meetingConveneOptions, cellValue),
     // },
+    {
+      field: 'recorder',
+      title: '记录人',
+      width: 80,
+    },
     {
       field: 'comment',
       title: '备注',
@@ -183,18 +180,13 @@ const [Drawer, drawerApi] = useVbenDrawer({
   },
 });
 
-// 详情弹窗
-const [FormModal, formModalApi] = useVbenModal({
-  connectedComponent: ExtraFormModal,
-});
-
-// 打开详情弹窗
+// 打开详情页面
 function openDetail(row: MeetingInfo) {
-    router.push({
+  router.push({
     name: 'MeetingDetail',
     params: {
-      meetingId: row.meetingId
-    }
+      meetingId: row.meetingId,
+    },
   });
 }
 
@@ -208,13 +200,13 @@ function open(row: MeetingInfo) {
 }
 
 // 跳转至新增页面
-function openAdd(){
-  router.push('/meeting/add')
+function openAdd() {
+  router.push('/meeting/add');
 }
 
 // 删除
-function onDelete(row:MeetingInfo){
-  message.info("删除");
+function onDelete(row: MeetingInfo) {
+  message.info('删除');
 }
 </script>
 

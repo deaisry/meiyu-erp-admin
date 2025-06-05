@@ -17,7 +17,7 @@ import {
   Card,
   CardContent,
   VbenCountToAnimator,
-} from '../../../../../../packages/@core/ui-kit/shadcn-ui';
+} from '../../../../../packages/@core/ui-kit/shadcn-ui';
 
 interface Props {
   items?: DeptOverviewItem[];

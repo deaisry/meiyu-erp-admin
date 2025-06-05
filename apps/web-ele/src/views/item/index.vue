@@ -1,31 +1,332 @@
 <script lang="ts" setup>
-import { ElCard, ElCol, ElRow } from 'element-plus';
+import type { HumanInfo } from '@vben/types';
+
+import type { VbenFormProps } from '#/adapter/form';
+import type { VxeGridProps } from '#/adapter/vxe-table';
+
+import { ref } from 'vue';
+
+import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
+import {
+  departmentOptions,
+  educationOptions,
+  employmentTypeOptions,
+  genderOptions,
+  workStatusOptions,
+} from '@vben/types';
+
+import { Button, message } from 'ant-design-vue';
+import dayjs from 'dayjs';
+
+import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { activeEmp, fetchHumanList, inactiveEmp } from '#/api/human/human';
+import { mapEnumValue } from '#/api/utils/format';
+import ExtraDrawer from '#/views/human/info/drawer.vue';
+
+import ExtraFormModal from './modal.vue';
+import Overview from './overview.vue';
+
+const formOptions: VbenFormProps = {
+  // 默认收起
+  collapsed: true,
+  fieldMappingTime: [['date', ['start', 'end']]],
+  schema: [
+    {
+      component: 'Input',
+      defaultValue: '',
+      fieldName: 'cnName',
+      label: '姓名',
+    },
+    {
+      component: 'Select',
+      componentProps: {
+        allowClear: true,
+        options: departmentOptions,
+        placeholder: '请选择',
+      },
+      fieldName: 'dept',
+      label: '部门',
+    },
+    {
+      component: 'Select',
+      fieldName: 'sex',
+      label: '性别',
+      componentProps: {
+        allowClear: true,
+        options: genderOptions,
+        placeholder: '请选择',
+      },
+    },
+    {
+      component: 'Select',
+      fieldName: 'employeeType',
+      label: '用工性质',
+      componentProps: {
+        allowClear: true,
+        options: employmentTypeOptions,
+        placeholder: '请选择',
+      },
+    },
+    {
+      component: 'Select',
+      fieldName: 'isWork',
+      label: '在职状态',
+      componentProps: {
+        allowClear: true,
+        options: workStatusOptions,
+        placeholder: '请选择',
+      },
+    },
+    // {
+    //   component: 'DatePicker',
+    //   defaultValue: [dayjs().subtract(7, 'days'), dayjs()],
+    //   fieldName: 'enterDate',
+    //   label: '入厂时间',
+    // },
+  ],
+  // 控制表单是否显示折叠按钮
+  showCollapseButton: true,
+  // 是否在字段值改变时提交表单
+  submitOnChange: false,
+  // 按下回车时是否提交表单
+  submitOnEnter: true,
+};
+const deptList = ref<{ cnt: number; dept: string }[]>([]);
+const gridOptions: VxeGridProps<HumanInfo> = {
+  checkboxConfig: {
+    highlight: true,
+    labelField: 'name',
+  },
+  columns: [
+    { type: 'checkbox', width: 30 },
+    {
+      title: '序号',
+      type: 'seq',
+      width: 50,
+    },
+    {
+      field: 'id',
+      title: '工号',
+      width: 120,
+    },
+    {
+      field: 'isWork',
+      title: '在职状态',
+      width: 80,
+      formatter: ({ cellValue }) => mapEnumValue(workStatusOptions, cellValue),
+    },
+    {
+      field: 'attendanceId',
+      title: '考勤号',
+      width: 120,
+    },
+    {
+      field: 'dept',
+      title: '部门',
+      sortable: true,
+      width: 120,
+      formatter: ({ cellValue }) => mapEnumValue(departmentOptions, cellValue),
+    },
+    {
+      field: 'cnName',
+      title: '姓名',
+      width: 100,
+    },
+    {
+      field: 'sex',
+      title: '性别',
+      formatter: ({ cellValue }) => mapEnumValue(genderOptions, cellValue),
+      width: 80,
+    },
+    {
+      field: 'idNbr',
+      title: '身份证号',
+      width: 180,
+    },
+    {
+      field: 'edu',
+      title: '学历',
+      formatter: ({ cellValue }) => mapEnumValue(educationOptions, cellValue),
+    },
+    {
+      field: 'nativePlace',
+      title: '籍贯',
+      width: 120,
+    },
+    {
+      field: 'ethnicGroup',
+      title: '民族',
+      width: 100,
+    },
+    {
+      field: 'isMarried',
+      title: '婚否',
+      formatter: ({ cellValue }) => (cellValue === '1' ? '是' : '否'),
+      width: 80,
+    },
+    {
+      field: 'title',
+      title: '职务',
+      width: 120,
+    },
+    {
+      field: 'employeeType',
+      title: '用工性质',
+      formatter: ({ cellValue }) =>
+        mapEnumValue(employmentTypeOptions, cellValue),
+      width: 120,
+    },
+    {
+      field: 'enterDate',
+      title: '入厂日期',
+      // formatter: ({ cellValue }) =>
+      //   dayjs(cellValue).format('YYYY-MM-DD'),
+      width: 120,
+    },
+    {
+      field: 'phone',
+      title: '联系方式',
+      width: 120,
+    },
+    {
+      field: 'address',
+      title: '家庭住址',
+      width: 200,
+    },
+    {
+      field: 'birthday',
+      title: '出生日期',
+      formatter: ({ cellValue }) => dayjs(cellValue).format('YYYY-MM-DD'),
+      width: 140,
+    },
+    {
+      field: 'action',
+      fixed: 'right',
+      slots: { default: 'action' },
+      title: '操作',
+      width: 255,
+    },
+  ],
+  proxyConfig: {
+    ajax: {
+      query: async ({ page }, formValues) => {
+        try {
+          const response = await fetchHumanList({
+            pageNo: page.currentPage,
+            pageSize: page.pageSize,
+            ...formValues,
+          });
+          deptList.value = response.list.map((item) => ({
+            ...item,
+            dept: mapEnumValue(departmentOptions, item.dept) || item.dept,
+          }));
+          return {
+            items: response.data.records, // 关键字段映射
+            total: response.data.total,
+          };
+        } catch (error) {
+          console.error('请求失败:', error);
+          return { items: [], total: 0 };
+        }
+      },
+    },
+  },
+  exportConfig: {},
+  height: 'auto',
+  keepSource: true,
+  pagerConfig: {},
+  toolbarConfig: {
+    custom: true,
+    export: true,
+    refresh: true,
+    resizable: true,
+    // search: true,
+    zoom: true,
+  },
+};
+// 人事信息列表
+const [Grid, gridApi] = useVbenVxeGrid({
+  formOptions,
+  gridOptions,
+});
+
+// 编辑抽屉
+const [Drawer, drawerApi] = useVbenDrawer({
+  // 连接抽离的组件
+  connectedComponent: ExtraDrawer,
+  onClosed() {
+    gridApi.reload();
+  },
+});
+
+// 详情弹窗
+const [FormModal, formModalApi] = useVbenModal({
+  connectedComponent: ExtraFormModal,
+});
+
+// 打开详情弹窗
+function openModal(row: HumanInfo) {
+  formModalApi
+    .setData({
+      ...row,
+    })
+    .open();
+}
+
+// 打开编辑抽屉
+function open(row: HumanInfo) {
+  drawerApi
+    .setData({
+      ...row, // 传递整个行数据
+    })
+    .open();
+}
+
+// 启用职工
+function active(row: HumanInfo) {
+  try {
+    activeEmp(row);
+    // console.log(response);
+    message.info(`职工${row.cnName}启用成功`);
+    gridApi.reload();
+  } catch {
+    message.error(`职工${row.cnName}启用失败`);
+  }
+}
+
+// 停用职工
+function inactive(row: HumanInfo) {
+  try {
+    inactiveEmp(row);
+    // console.log(response);
+    message.info(`职工${row.cnName}停用成功`);
+    gridApi.reload();
+  } catch {
+    message.error(`职工${row.cnName}停用失败`);
+  }
+}
 </script>
 
 <template>
-  <ElRow :gutter="12">
-    <ElCol :span="8">
-      <ElCard shadow="always"> 总是显示 </ElCard>
-    </ElCol>
-    <ElCol :span="8">
-      <ElCard shadow="hover"> 鼠标悬浮时显示 </ElCard>
-    </ElCol>
-    <ElCol :span="8">
-      <ElCard shadow="never"> 从不显示 </ElCard>
-    </ElCol>
-  </ElRow>
+  <Page auto-content-height>
+    <Drawer />
+    <Overview :dept-list="deptList" />
+    <Grid>
+      <template #action="{ row }">
+        <Button type="link" @click="open(row)"> 编辑 </Button>
+        <Button type="link" :disabled="row.isWork === '1'" @click="active(row)">
+          启用
+        </Button>
+        <Button
+          type="link"
+          :disabled="row.isWork === '0'"
+          @click="inactive(row)"
+        >
+          停用
+        </Button>
+        <Button type="link" @click="openModal(row)">详情</Button>
+        <FormModal />
+      </template>
+    </Grid>
+  </Page>
 </template>
-
-<style>
-.text {
-  font-size: 14px;
-}
-
-.item {
-  padding: 18px 0;
-}
-
-.box-card {
-  width: 480px;
-}
-</style>

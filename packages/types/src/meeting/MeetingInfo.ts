@@ -7,6 +7,7 @@ interface MeetingInfo {
   meetingType?: string;
   participants?: string;
   meetingPlace?: string;
+  recorder?: string;
   comment?: string;
   createBy?: null | string;
   updateBy?: null | string;
