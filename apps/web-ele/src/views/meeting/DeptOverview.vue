@@ -33,7 +33,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-8">
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
     <template v-for="item in items" :key="item.title">
       <Card class="w-full">
         <CardContent class="flex items-center justify-between p-4">

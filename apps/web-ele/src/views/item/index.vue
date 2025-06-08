@@ -1,31 +1,40 @@
 <script lang="ts" setup>
-import type { HumanInfo } from '@vben/types';
+import type { ItemInfo } from '@vben/types';
 
 import type { VbenFormProps } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
 import {
   departmentOptions,
-  educationOptions,
-  employmentTypeOptions,
-  genderOptions,
-  workStatusOptions,
+  followStatusOptions,
+  itemRelaTypeOptions,
+  itemTypeOptions,
 } from '@vben/types';
 
-import { Button, message } from 'ant-design-vue';
+import { Button } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { activeEmp, fetchHumanList, inactiveEmp } from '#/api/human/human';
+import { fetchItemList } from '#/api/item/item';
 import { mapEnumValue } from '#/api/utils/format';
 import ExtraDrawer from '#/views/human/info/drawer.vue';
+import DepartmentEmployeeSelect from '#/views/utils/DepartmentEmployeeSelect.vue';
 
 import ExtraFormModal from './modal.vue';
 import Overview from './overview.vue';
 
+const router = useRouter();
+const participantsProps = ref({
+  autoLoad: true, // 启用自动加载数据
+  placeholder: '请选择人员',
+  multiple: true,
+  filterable: true,
+  clearable: true,
+});
 const formOptions: VbenFormProps = {
   // 默认收起
   collapsed: true,
@@ -34,8 +43,28 @@ const formOptions: VbenFormProps = {
     {
       component: 'Input',
       defaultValue: '',
-      fieldName: 'cnName',
-      label: '姓名',
+      fieldName: 'itemName',
+      label: '事项名称',
+    },
+    {
+      component: 'Select',
+      componentProps: {
+        allowClear: true,
+        options: itemRelaTypeOptions,
+        placeholder: '请选择',
+      },
+      fieldName: 'relaType',
+      label: '关联类型',
+    },
+    {
+      component: 'Select',
+      componentProps: {
+        allowClear: true,
+        options: itemTypeOptions,
+        placeholder: '请选择',
+      },
+      fieldName: 'itemType',
+      label: '事项类型',
     },
     {
       component: 'Select',
@@ -45,44 +74,36 @@ const formOptions: VbenFormProps = {
         placeholder: '请选择',
       },
       fieldName: 'dept',
-      label: '部门',
+      label: '责任部门',
+    },
+    {
+      component: DepartmentEmployeeSelect,
+      fieldName: 'responsibleP',
+      label: '负责人',
+      componentProps: {
+        ...participantsProps,
+      },
+      // rules: 'required',
+    },
+    {
+      component: DepartmentEmployeeSelect,
+      fieldName: 'follower',
+      label: '跟进人',
+      componentProps: {
+        ...participantsProps,
+      },
+      // rules: 'required',
     },
     {
       component: 'Select',
-      fieldName: 'sex',
-      label: '性别',
       componentProps: {
         allowClear: true,
-        options: genderOptions,
+        options: followStatusOptions,
         placeholder: '请选择',
       },
+      fieldName: 'followStatus',
+      label: '跟进状态',
     },
-    {
-      component: 'Select',
-      fieldName: 'employeeType',
-      label: '用工性质',
-      componentProps: {
-        allowClear: true,
-        options: employmentTypeOptions,
-        placeholder: '请选择',
-      },
-    },
-    {
-      component: 'Select',
-      fieldName: 'isWork',
-      label: '在职状态',
-      componentProps: {
-        allowClear: true,
-        options: workStatusOptions,
-        placeholder: '请选择',
-      },
-    },
-    // {
-    //   component: 'DatePicker',
-    //   defaultValue: [dayjs().subtract(7, 'days'), dayjs()],
-    //   fieldName: 'enterDate',
-    //   label: '入厂时间',
-    // },
   ],
   // 控制表单是否显示折叠按钮
   showCollapseButton: true,
@@ -91,8 +112,8 @@ const formOptions: VbenFormProps = {
   // 按下回车时是否提交表单
   submitOnEnter: true,
 };
-const deptList = ref<{ cnt: number; dept: string }[]>([]);
-const gridOptions: VxeGridProps<HumanInfo> = {
+const followList = ref<{ cnt: number; status: string }[]>([]);
+const gridOptions: VxeGridProps<ItemInfo> = {
   checkboxConfig: {
     highlight: true,
     labelField: 'name',
@@ -105,120 +126,121 @@ const gridOptions: VxeGridProps<HumanInfo> = {
       width: 50,
     },
     {
-      field: 'id',
-      title: '工号',
+      field: 'itemId',
+      title: '事项编号',
       width: 120,
     },
     {
-      field: 'isWork',
-      title: '在职状态',
-      width: 80,
-      formatter: ({ cellValue }) => mapEnumValue(workStatusOptions, cellValue),
-    },
-    {
-      field: 'attendanceId',
-      title: '考勤号',
-      width: 120,
-    },
-    {
-      field: 'dept',
-      title: '部门',
-      sortable: true,
-      width: 120,
-      formatter: ({ cellValue }) => mapEnumValue(departmentOptions, cellValue),
-    },
-    {
-      field: 'cnName',
-      title: '姓名',
-      width: 100,
-    },
-    {
-      field: 'sex',
-      title: '性别',
-      formatter: ({ cellValue }) => mapEnumValue(genderOptions, cellValue),
-      width: 80,
-    },
-    {
-      field: 'idNbr',
-      title: '身份证号',
+      field: 'itemName',
+      title: '事项名称',
       width: 180,
     },
     {
-      field: 'edu',
-      title: '学历',
-      formatter: ({ cellValue }) => mapEnumValue(educationOptions, cellValue),
-    },
-    {
-      field: 'nativePlace',
-      title: '籍贯',
+      field: 'relaId',
+      title: '关联编号',
       width: 120,
+      formatter: ({ cellValue }) => {
+        // 如果值为空或 null 或 undefined，显示短横线
+        return cellValue || '-';
+      },
     },
     {
-      field: 'ethnicGroup',
-      title: '民族',
-      width: 100,
-    },
-    {
-      field: 'isMarried',
-      title: '婚否',
-      formatter: ({ cellValue }) => (cellValue === '1' ? '是' : '否'),
-      width: 80,
-    },
-    {
-      field: 'title',
-      title: '职务',
+      field: 'relaType',
+      title: '关联类型',
       width: 120,
-    },
-    {
-      field: 'employeeType',
-      title: '用工性质',
       formatter: ({ cellValue }) =>
-        mapEnumValue(employmentTypeOptions, cellValue),
+        mapEnumValue(itemRelaTypeOptions, cellValue),
+    },
+    {
+      field: 'itemType',
+      title: '事项类型',
+      width: 100,
+      formatter: ({ cellValue }) => mapEnumValue(itemTypeOptions, cellValue),
+    },
+    {
+      field: 'dept',
+      title: '责任部门',
+      width: 100,
+      formatter: ({ cellValue }) => mapEnumValue(departmentOptions, cellValue),
+    },
+    {
+      field: 'responsibleP',
+      title: '负责人',
       width: 120,
     },
     {
-      field: 'enterDate',
-      title: '入厂日期',
-      // formatter: ({ cellValue }) =>
-      //   dayjs(cellValue).format('YYYY-MM-DD'),
+      field: 'follower',
+      title: '跟进人',
       width: 120,
     },
     {
-      field: 'phone',
-      title: '联系方式',
-      width: 120,
+      field: 'progress',
+      title: '事项进度',
+      width: 260,
+      cellRender: {
+        name: 'CellProgress',
+      },
     },
     {
-      field: 'address',
-      title: '家庭住址',
+      field: 'planCompleteTime',
+      title: '计划完成时间',
+      width: 160,
+      formatter: ({ cellValue }) => dayjs(cellValue).format('YYYY-MM-DD HH:mm'),
+    },
+    {
+      field: 'completeTime',
+      title: '实际完成时间',
+      width: 160,
+      formatter: ({ cellValue }) => dayjs(cellValue).format('YYYY-MM-DD HH:mm'),
+    },
+    {
+      field: 'comment',
+      title: '备注',
       width: 200,
     },
     {
-      field: 'birthday',
-      title: '出生日期',
-      formatter: ({ cellValue }) => dayjs(cellValue).format('YYYY-MM-DD'),
-      width: 140,
+      field: 'createBy',
+      title: '创建人',
+      width: 120,
+    },
+    {
+      field: 'updateBy',
+      title: '更新人',
+      width: 120,
+    },
+    {
+      field: 'createTime',
+      title: '创建时间',
+      width: 160,
+      formatter: ({ cellValue }) => dayjs(cellValue).format('YYYY-MM-DD HH:mm'),
+    },
+    {
+      field: 'updateTime',
+      title: '更新时间',
+      width: 160,
+      formatter: ({ cellValue }) => dayjs(cellValue).format('YYYY-MM-DD HH:mm'),
     },
     {
       field: 'action',
       fixed: 'right',
       slots: { default: 'action' },
       title: '操作',
-      width: 255,
+      width: 200,
     },
   ],
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues) => {
         try {
-          const response = await fetchHumanList({
+          const response = await fetchItemList({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...formValues,
           });
-          deptList.value = response.list.map((item) => ({
+          followList.value = response.list.map((item) => ({
             ...item,
-            dept: mapEnumValue(departmentOptions, item.dept) || item.dept,
+            status:
+              mapEnumValue(followStatusOptions, item.status) || item.status,
           }));
           return {
             items: response.data.records, // 关键字段映射
@@ -244,7 +266,7 @@ const gridOptions: VxeGridProps<HumanInfo> = {
     zoom: true,
   },
 };
-// 人事信息列表
+// 事项列表
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
@@ -259,22 +281,23 @@ const [Drawer, drawerApi] = useVbenDrawer({
   },
 });
 
-// 详情弹窗
+// 分配弹窗
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: ExtraFormModal,
 });
 
-// 打开详情弹窗
-function openModal(row: HumanInfo) {
-  formModalApi
-    .setData({
-      ...row,
-    })
-    .open();
+// 打开详情页面
+function openDetail(row: ItemInfo) {
+  router.push({
+    name: 'ItemDetail',
+    params: {
+      itemId: row.itemId,
+    },
+  });
 }
 
 // 打开编辑抽屉
-function open(row: HumanInfo) {
+function open(row: ItemInfo) {
   drawerApi
     .setData({
       ...row, // 传递整个行数据
@@ -283,48 +306,26 @@ function open(row: HumanInfo) {
 }
 
 // 启用职工
-function active(row: HumanInfo) {
-  try {
-    activeEmp(row);
-    // console.log(response);
-    message.info(`职工${row.cnName}启用成功`);
-    gridApi.reload();
-  } catch {
-    message.error(`职工${row.cnName}启用失败`);
-  }
-}
-
-// 停用职工
-function inactive(row: HumanInfo) {
-  try {
-    inactiveEmp(row);
-    // console.log(response);
-    message.info(`职工${row.cnName}停用成功`);
-    gridApi.reload();
-  } catch {
-    message.error(`职工${row.cnName}停用失败`);
-  }
+function assign(row: ItemInfo) {
+  formModalApi
+    .setData({
+      ...row,
+    })
+    .open();
 }
 </script>
 
 <template>
   <Page auto-content-height>
     <Drawer />
-    <Overview :dept-list="deptList" />
+    <Overview :follow-list="followList" />
     <Grid>
       <template #action="{ row }">
         <Button type="link" @click="open(row)"> 编辑 </Button>
-        <Button type="link" :disabled="row.isWork === '1'" @click="active(row)">
-          启用
+        <Button type="link" :disabled="row.isWork === '1'" @click="assign(row)">
+          分配
         </Button>
-        <Button
-          type="link"
-          :disabled="row.isWork === '0'"
-          @click="inactive(row)"
-        >
-          停用
-        </Button>
-        <Button type="link" @click="openModal(row)">详情</Button>
+        <Button type="link" @click="openDetail(row)">详情</Button>
         <FormModal />
       </template>
     </Grid>

@@ -8,10 +8,9 @@
  *
  * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
  */
-import type { BaseResponse,PaginationResult } from '@vben/types';
+import type { BaseResponse, PaginationResult } from '@vben/types';
 
-interface PaginationResponse<T> extends BaseResponse{
-  data: PaginationResult<T>
+interface PaginationResponse<T> extends BaseResponse {
+  data: PaginationResult<T>;
 }
-export type {PaginationResponse};
-
+export type { PaginationResponse };

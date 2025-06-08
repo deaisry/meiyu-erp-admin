@@ -38,25 +38,63 @@ export enum EducationEnum {
 }
 
 export enum MeetingTypeEunm {
+  engineer = '5',
+  management = '6',
   other = '0',
-  weekly = '1',
   product = '2',
   quality = '3',
   supplier = '4',
-  engineer = '5',
-  management = '6',
+  weekly = '1',
 }
 
-export enum MeetingPlaceEnum{
-  other = '0',
-  kjpRoom = '1',
+export enum MeetingPlaceEnum {
   floor2Room = '2',
+  kjpRoom = '1',
+  other = '0',
 }
 
-export enum MeetingConveneEnum{
-  notConvene = '0',
+export enum MeetingConveneEnum {
   isConvene = '1',
+  notConvene = '0',
 }
+
+export enum ItemRelaTypeEnum {
+  meeting = '1',
+  nothing = '0',
+  order = '2',
+}
+
+// 事项类型枚举
+export enum ItemTypeEnum {
+  MOLD = '4',
+  PENDING = '0',
+  PROCESSING = '3',
+  PRODUCTION = '2',
+  PURCHASE = '1',
+}
+
+// 事项类型选项
+export const itemTypeOptions = createEnumOptions(ItemTypeEnum, {
+  PENDING: '待定',
+  PURCHASE: '采购',
+  PRODUCTION: '生产',
+  PROCESSING: '加工',
+  MOLD: '模具',
+});
+
+// 跟进状态枚举
+export enum FollowStatusEnum {
+  COMPLETED = '2',
+  FOLLOWING = '1',
+  PENDING = '0',
+}
+
+// 跟进状态选项
+export const followStatusOptions = createEnumOptions(FollowStatusEnum, {
+  PENDING: '待跟进',
+  FOLLOWING: '跟进中',
+  COMPLETED: '已完成',
+});
 
 type EnumOption<T extends number | string> = {
   label: string;
@@ -91,6 +129,11 @@ export const departmentOptions = createEnumOptions(DepartmentEnum, {
   InjectionMoldingDepartment: '注塑部',
   FinanceDepartment: '财务部',
   EngineeringDepartment: '工程部',
+});
+export const itemRelaTypeOptions = createEnumOptions(ItemRelaTypeEnum, {
+  nothing: '无关联',
+  meeting: '会议关联',
+  order: '订单关联',
 });
 
 // 性别选项
@@ -127,28 +170,27 @@ export const marryOptions = createEnumOptions(MarryStatusEnum, {
 });
 
 // 会议类型：0-其他会议、1-每周工作总结会议、2-生产/品质物料会议、3-品质改进小组会议、4-每月供应商周期评审、5-工程会议、6-管理模式推行会议
-export const meetingTypeOptions = createEnumOptions(MeetingTypeEunm,{
-  other:'其他会议',
-  weekly:'每周工作总结会议',
-  product:'生产/品质物料会议',
-  quality:'品质改进小组会议',
-  supplier:'每月供应商周期评审',
-  engineer:'工程会议',
-  management:'管理模式推行会议',
-})
+export const meetingTypeOptions = createEnumOptions(MeetingTypeEunm, {
+  other: '其他会议',
+  weekly: '每周工作总结会议',
+  product: '生产/品质物料会议',
+  quality: '品质改进小组会议',
+  supplier: '每月供应商周期评审',
+  engineer: '工程会议',
+  management: '管理模式推行会议',
+});
 
-export const meetingPlaceOptions = createEnumOptions(MeetingPlaceEnum,{
-  other : '其他',
-  kjpRoom : '一楼会议室',
-  floor2Room:'二楼会议室'
-})
+export const meetingPlaceOptions = createEnumOptions(MeetingPlaceEnum, {
+  other: '其他',
+  kjpRoom: '一楼会议室',
+  floor2Room: '二楼会议室',
+});
 
-export const meetingConveneOptions = createEnumOptions(MeetingConveneEnum,{
-  notConvene:'未召开',
-  isConvene:'已召开'
-})
-
+export const meetingConveneOptions = createEnumOptions(MeetingConveneEnum, {
+  notConvene: '未召开',
+  isConvene: '已召开',
+});
 
 export const departmentNameMap = Object.fromEntries(
-  departmentOptions.map(opt => [opt.value, opt.label])
+  departmentOptions.map((opt) => [opt.value, opt.label]),
 ) as Record<`${DepartmentEnum}`, string>;

@@ -1,17 +1,17 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 
-import DeptOverview from './DeptOverview.vue';
+import FollowOverview from './FollowOverview.vue';
 
 const props = defineProps<{
-  deptList: Array<{ cnt: number; dept: string }>;
+  followList: Array<{ cnt: number; status: string }>;
 }>();
 
-const overviewItems = computed(() => props.deptList);
+const overviewItems = computed(() => props.followList);
 </script>
 
 <template>
   <div class="p-5">
-    <DeptOverview :items="overviewItems" />
+    <FollowOverview :items="overviewItems" />
   </div>
 </template>

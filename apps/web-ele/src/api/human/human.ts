@@ -1,9 +1,9 @@
 import type {
   BaseResponse,
+  BaseResponseData,
   HumanInfo,
   OverviewPaginationResult,
   PaginationParams,
-  BaseResponseData,
 } from '@vben/types';
 
 import { requestClient } from '#/api/request';
@@ -37,6 +37,6 @@ export async function selectById(data: HumanInfo) {
   return await requestClient.post<BaseResponse>('/human/selectById', data);
 }
 
-export async function selectDeptMem(){
+export async function selectDeptMem() {
   return await requestClient.get<BaseResponseData>('/human/findDeptMem');
 }

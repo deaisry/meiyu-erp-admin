@@ -23,6 +23,11 @@ interface DeptOverviewItem {
   cnt: number;
 }
 
+interface FollowOverviewItem {
+  status: string;
+  cnt: number;
+}
+
 interface WorkbenchProjectItem {
   color?: string;
   content: string;
@@ -57,6 +62,7 @@ interface WorkbenchQuickNavItem {
 export type {
   AnalysisOverviewItem,
   DeptOverviewItem,
+  FollowOverviewItem,
   WorkbenchProjectItem,
   WorkbenchQuickNavItem,
   WorkbenchTodoItem,
