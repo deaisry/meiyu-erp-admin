@@ -66,20 +66,24 @@ export enum ItemRelaTypeEnum {
 
 // 事项类型枚举
 export enum ItemTypeEnum {
+  MANAGEMENT = '6',
   MOLD = '4',
   PENDING = '0',
   PROCESSING = '3',
   PRODUCTION = '2',
   PURCHASE = '1',
+  QUALITY = '5',
 }
 
-// 事项类型选项
+// 事项类型选项 事项类型，0-待定、1-采购、2-生产、3-加工、4-模具、5-品质、6-管理
 export const itemTypeOptions = createEnumOptions(ItemTypeEnum, {
   PENDING: '待定',
   PURCHASE: '采购',
   PRODUCTION: '生产',
   PROCESSING: '加工',
   MOLD: '模具',
+  QUALITY: '品质',
+  MANAGEMENT: '管理',
 });
 
 // 跟进状态枚举

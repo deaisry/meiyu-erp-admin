@@ -24,8 +24,12 @@ interface DeptOverviewItem {
 }
 
 interface FollowOverviewItem {
-  status: string;
-  cnt: number;
+  status?: string;
+  cnt?: number;
+}
+interface TypeOverviewItem {
+  type?: string;
+  cnt?: number;
 }
 
 interface WorkbenchProjectItem {
@@ -63,6 +67,7 @@ export type {
   AnalysisOverviewItem,
   DeptOverviewItem,
   FollowOverviewItem,
+  TypeOverviewItem,
   WorkbenchProjectItem,
   WorkbenchQuickNavItem,
   WorkbenchTodoItem,

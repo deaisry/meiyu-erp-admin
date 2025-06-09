@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import type { CascaderProps, CascaderValue } from 'element-plus';
 
+import type { EmployeeDeptInfo } from '@vben/types';
+
 import { computed, onMounted, ref, watch } from 'vue';
 
 import { departmentNameMap } from '@vben/types';
@@ -18,8 +20,8 @@ const props = defineProps({
   },
   // 源数据格式: { 部门ID: [员工姓名列表] }
   sourceData: {
-    type: Object as () => Record<string, string[]>,
-    required: true,
+    type: Object as () => Record<string, EmployeeDeptInfo[]>,
+    required: false,
     default: () => ({}),
   },
   // 部门名称映射: { 部门ID: 部门名称 }
@@ -69,7 +71,7 @@ const emit = defineEmits(['update:modelValue', 'change']);
 const loading = ref(false);
 const error = ref(false);
 const errorMessage = ref('');
-const departmentEmployeeData = ref<Record<string, string[]>>({}); // 新增数据存储
+const departmentEmployeeData = ref<Record<string, EmployeeDeptInfo[]>>({}); // 新增数据存储
 
 // 新增：自动加载部门人员数据
 const fetchDepartmentData = async () => {
@@ -79,7 +81,6 @@ const fetchDepartmentData = async () => {
     loading.value = true;
     error.value = false;
     errorMessage.value = '';
-
     const response = await selectDeptMem();
     if (response.state === 200 && response.data) {
       departmentEmployeeData.value = response.data;
@@ -108,8 +109,6 @@ watch(
   () => props.modelValue,
   (newVal) => {
     if (Array.isArray(newVal)) {
-      const tmp = getSelectedEmployees();
-      const tmpDept = getSelectedDepartments();
       selectedValue.value = newVal;
     }
   },
@@ -125,6 +124,7 @@ const cascaderProps: CascaderProps = {
 
 // 转换数据为级联选择器需要的树形结构
 const cascaderOptions = computed(() => {
+  debugger;
   const options: any[] = [];
   const sourceData = props.autoLoad
     ? departmentEmployeeData.value
@@ -183,6 +183,7 @@ function handleChange(value: CascaderValue) {
 
 // 获取选中的员工姓名
 function getSelectedEmployees() {
+  console.log('getSelectedEmployees');
   try {
     if (!Array.isArray(selectedValue.value)) return [];
     return selectedValue.value.map((item) => {
@@ -198,6 +199,7 @@ function getSelectedEmployees() {
 
 // 获取选中的部门ID
 function getSelectedDepartments() {
+  console.log('getSelectedDepartments');
   try {
     if (!Array.isArray(selectedValue.value)) return [];
 

@@ -1,6 +1,6 @@
 import type {
   BaseResponse,
-  BaseResponseData,
+  DepartmentEmployeesResponse,
   HumanInfo,
   OverviewPaginationResult,
   PaginationParams,
@@ -38,5 +38,7 @@ export async function selectById(data: HumanInfo) {
 }
 
 export async function selectDeptMem() {
-  return await requestClient.get<BaseResponseData>('/human/findDeptMem');
+  return await requestClient.get<DepartmentEmployeesResponse>(
+    '/human/findDeptMem',
+  );
 }

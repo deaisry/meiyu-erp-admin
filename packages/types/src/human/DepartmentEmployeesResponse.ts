@@ -1,12 +1,5 @@
-import type { DeptCount, HumanInfo, PaginationResponse } from '@vben/types';
-
 import type { BaseResponse } from '../base/BaseResponse';
 import type { DepartmentEmployeesMap } from './HumanInfo';
-
-interface HumanApiResponse extends PaginationResponse<HumanInfo> {
-  deptList: DeptCount[];
-}
-export type { HumanApiResponse };
 
 interface DepartmentEmployeesResponse extends BaseResponse {
   data: DepartmentEmployeesMap;

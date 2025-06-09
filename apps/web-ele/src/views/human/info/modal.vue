@@ -11,8 +11,6 @@ import {
   workStatusOptions,
 } from '@vben/types';
 
-import { ElDescriptions, ElDescriptionsItem } from 'element-plus';
-
 // 定义字段配置
 const fieldConfig = [
   { key: 'id', label: '工号' },
@@ -75,15 +73,36 @@ const [Modal, modalApi] = useVbenModal({
 
 <template>
   <Modal title="员工信息详情">
-    <ElDescriptions :column="2">
-      <ElDescriptionsItem
-        v-for="(item, index) in displayData"
-        :key="index"
-        :label="item.label"
+    <Transition name="fade">
+      <div
+        v-if="visible"
+        class="confirm-dialog-overlay"
+        @click.self="handleOverlayClick"
       >
-        {{ item.value }}
-      </ElDescriptionsItem>
-    </ElDescriptions>
+        <div class="confirm-dialog">
+          <div class="confirm-dialog-header">
+            <h3>确认删除</h3>
+          </div>
+
+          <div class="confirm-dialog-body">
+            <div class="icon-wrapper">
+              <svg class="warning-icon" viewBox="0 0 24 24">
+                <path
+                  fill="currentColor"
+                  d="M12,2L1,21H23M12,6l7.53,13H4.47M11,10v4h2v-4h-2m0,6v2h2v-2h-2Z"
+                />
+              </svg>
+            </div>
+            <!-- <p>{{ message }}</p> -->
+          </div>
+
+          <div class="confirm-dialog-footer">
+            <button class="cancel-btn" @click="cancel">取消</button>
+            <button class="confirm-btn" @click="confirm">确认删除</button>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </Modal>
 </template>
 <style scoped></style>

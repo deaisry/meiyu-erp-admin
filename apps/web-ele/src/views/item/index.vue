@@ -19,12 +19,13 @@ import { Button } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { fetchItemList } from '#/api/item/item';
+import { deleteItemInfo, fetchItemList } from '#/api/item/item';
 import { mapEnumValue } from '#/api/utils/format';
 import ExtraDrawer from '#/views/human/info/drawer.vue';
 import DepartmentEmployeeSelect from '#/views/utils/DepartmentEmployeeSelect.vue';
 
-import ExtraFormModal from './modal.vue';
+import AddFormModal from './addModal.vue';
+import AssignFormModal from './modal.vue';
 import Overview from './overview.vue';
 
 const router = useRouter();
@@ -113,6 +114,7 @@ const formOptions: VbenFormProps = {
   submitOnEnter: true,
 };
 const followList = ref<{ cnt: number; status: string }[]>([]);
+const typeList = ref<{ cnt: number; type: string }[]>([]);
 const gridOptions: VxeGridProps<ItemInfo> = {
   checkboxConfig: {
     highlight: true,
@@ -237,10 +239,17 @@ const gridOptions: VxeGridProps<ItemInfo> = {
             pageSize: page.pageSize,
             ...formValues,
           });
-          followList.value = response.list.map((item) => ({
+          // 处理状态统计列表
+          followList.value = response.statusList.map((item) => ({
             ...item,
             status:
               mapEnumValue(followStatusOptions, item.status) || item.status,
+          }));
+
+          // 处理类型统计列表
+          typeList.value = response.typeList.map((item) => ({
+            ...item,
+            type: mapEnumValue(itemTypeOptions, item.type) || item.type,
           }));
           return {
             items: response.data.records, // 关键字段映射
@@ -282,8 +291,12 @@ const [Drawer, drawerApi] = useVbenDrawer({
 });
 
 // 分配弹窗
-const [FormModal, formModalApi] = useVbenModal({
-  connectedComponent: ExtraFormModal,
+const [AssignModal, assignFormModalApi] = useVbenModal({
+  connectedComponent: AssignFormModal,
+});
+
+const [AddModal, addFormModalApi] = useVbenModal({
+  connectedComponent: AddFormModal,
 });
 
 // 打开详情页面
@@ -305,28 +318,43 @@ function open(row: ItemInfo) {
     .open();
 }
 
-// 启用职工
+// 分配事项
 function assign(row: ItemInfo) {
-  formModalApi
+  assignFormModalApi
     .setData({
       ...row,
     })
     .open();
+}
+
+// 删除
+function onDelete(row: ItemInfo) {
+  deleteItemInfo(row.itemId);
+}
+
+// 新增事项弹窗
+function openAdd() {
+  console.info('whaaaat?');
+  addFormModalApi.open();
 }
 </script>
 
 <template>
   <Page auto-content-height>
     <Drawer />
-    <Overview :follow-list="followList" />
+    <Overview :follow-list="followList" :type-list="typeList" />
     <Grid>
+      <template #toolbar-actions>
+        <Button class="mr-2" type="primary" @click="() => openAdd()">
+          新增事项
+        </Button>
+      </template>
       <template #action="{ row }">
         <Button type="link" @click="open(row)"> 编辑 </Button>
-        <Button type="link" :disabled="row.isWork === '1'" @click="assign(row)">
-          分配
-        </Button>
+        <Button type="link" @click="assign(row)"> 分配 </Button>
         <Button type="link" @click="openDetail(row)">详情</Button>
-        <FormModal />
+        <AssignModal />
+        <AddModal />
       </template>
     </Grid>
   </Page>
