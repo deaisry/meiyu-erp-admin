@@ -5,7 +5,60 @@ import { setupVbenVxeTable, useVbenVxeGrid } from '@vben/plugins/vxe-table';
 import { Progress } from 'ant-design-vue';
 import { dayjs, ElButton, ElImage } from 'element-plus';
 
+import { getEmployeeNames, loadEmployeeData } from '#/api/human/human';
+
 import { useVbenForm } from './form';
+// 全局员工映射
+// const employeeNameMap: Record<string, string> = {};
+
+// const loadEmployeeData = async () => {
+//   try {
+//     // 1. 检查缓存是否存在
+//     const cachedData = localStorage.getItem('employeeData');
+//     const cacheTime = localStorage.getItem('employeeDataCacheTime');
+
+//     // 缓存有效期
+//     const cacheValid =
+//       cacheTime && Date.now() - Number(cacheTime) < 1 * 60 * 60 * 1000;
+
+//     if (cachedData && cacheValid) {
+//       // 使用缓存数据
+//       const data = JSON.parse(cachedData);
+//       // 填充employeeNameMap
+//       Object.entries(data).forEach(([key, value]) => {
+//         employeeNameMap[key] = value;
+//       });
+//       console.log('使用缓存的员工数据');
+//       return;
+//     }
+
+//     // 2. 没有有效缓存，请求API
+//     const response = await selectDeptMem();
+//     if (response.state === 200 && response.data) {
+//       // 更新内存映射
+//       Object.values(response.data).forEach((deptEmployees) => {
+//         deptEmployees.forEach((emp) => {
+//           employeeNameMap[emp.workId] = emp.cnName;
+//         });
+//       });
+
+//       // 3. 更新缓存
+//       localStorage.setItem('employeeData', JSON.stringify(employeeNameMap));
+//       localStorage.setItem('employeeDataCacheTime', Date.now().toString());
+//       console.log('员工数据已缓存');
+//     }
+//   } catch (error) {
+//     console.error('加载员工数据失败', error);
+//     // 可选：尝试从缓存中恢复
+//   }
+// };
+
+// 调用加载
+// loadEmployeeData();
+
+loadEmployeeData().then(() => {
+  console.log('员工数据加载完成');
+});
 
 setupVbenVxeTable({
   configVxeTable: (vxeUI) => {
@@ -59,7 +112,7 @@ setupVbenVxeTable({
     });
 
     vxeUI.renderer.add('CellProgress', {
-      renderTableDefault(renderOpts, params) {
+      renderTableDefault(_renderOpts, params) {
         const { row, column } = params;
         const progressValue: any = row[column.field];
 
@@ -111,8 +164,21 @@ setupVbenVxeTable({
           size: 'small',
           strokeWidth: 15,
           class: 'cell-progress',
-          // format: (percent) => `${percent}%`,
         });
+      },
+    });
+
+    vxeUI.renderer.add('EmployeeNameRenderer', {
+      renderTableDefault(_, params) {
+        const { row, column } = params;
+        const value = row[column.field];
+
+        // 处理空值
+        if (!value) return h('span', {}, '-');
+
+        // 直接使用封装的函数
+        const displayText = getEmployeeNames(value);
+        return h('span', {}, displayText);
       },
     });
   },

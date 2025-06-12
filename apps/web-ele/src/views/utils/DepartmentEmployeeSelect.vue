@@ -124,7 +124,6 @@ const cascaderProps: CascaderProps = {
 
 // 转换数据为级联选择器需要的树形结构
 const cascaderOptions = computed(() => {
-  debugger;
   const options: any[] = [];
   const sourceData = props.autoLoad
     ? departmentEmployeeData.value
@@ -146,10 +145,13 @@ const cascaderOptions = computed(() => {
       };
       if (Array.isArray(employees)) {
         employees.forEach((employee) => {
-          const uniqueValue = `${deptId}_${employee}`;
+          // 修复点：使用employee.name作为标签
+          // const employeeName = employee.cnName;
+          const uniqueValue = `${deptId}_${employee.workId}`;
+
           deptNode.children.push({
             value: uniqueValue,
-            label: employee,
+            label: employee.cnName, // 确保这里是字符串
             level: 1,
           });
         });
@@ -202,7 +204,6 @@ function getSelectedDepartments() {
   console.log('getSelectedDepartments');
   try {
     if (!Array.isArray(selectedValue.value)) return [];
-
     const departments = selectedValue.value
       .map((item) => {
         // 提取部门ID (格式: dept_部门ID)

@@ -102,6 +102,9 @@ const gridOptions: VxeGridProps<MeetingInfo> = {
       field: 'participants',
       title: '与会人员',
       width: 300,
+      cellRender: {
+        name: 'EmployeeNameRenderer',
+      },
     },
     {
       field: 'meetingContent',

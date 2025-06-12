@@ -36,6 +36,7 @@ const participantsProps = ref({
   filterable: true,
   clearable: true,
 });
+
 const formOptions: VbenFormProps = {
   // 默认收起
   collapsed: true,
@@ -169,11 +170,17 @@ const gridOptions: VxeGridProps<ItemInfo> = {
       field: 'responsibleP',
       title: '负责人',
       width: 120,
+      cellRender: {
+        name: 'EmployeeNameRenderer',
+      },
     },
     {
       field: 'follower',
       title: '跟进人',
       width: 120,
+      cellRender: {
+        name: 'EmployeeNameRenderer',
+      },
     },
     {
       field: 'progress',
@@ -234,10 +241,40 @@ const gridOptions: VxeGridProps<ItemInfo> = {
     ajax: {
       query: async ({ page }, formValues) => {
         try {
+          // 复制表单参数，避免修改原始对象
+          const processedParams = { ...formValues };
+          // 定义处理函数
+          const processField = (key: keyof typeof processedParams) => {
+            const value = processedParams[key];
+
+            if (Array.isArray(value)) {
+              const ids = value.map((item) => {
+                const str = String(item);
+                const parts = str.split('_');
+
+                // 取分割后的最后一部分作为ID
+                if (parts.length > 1) {
+                  return parts[parts.length - 1];
+                }
+
+                // 如果没有下划线，尝试提取纯数字
+                return str.replaceAll(/\D/g, '');
+              });
+
+              processedParams[key] = ids.join(',');
+            }
+          };
+
+          // 处理follower字段
+          processField('follower' as keyof typeof processedParams);
+
+          // 处理responsibleP字段
+          processField('responsibleP' as keyof typeof processedParams);
+
           const response = await fetchItemList({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
-            ...formValues,
+            ...processedParams, // 使用处理后的参数
           });
           // 处理状态统计列表
           followList.value = response.statusList.map((item) => ({
