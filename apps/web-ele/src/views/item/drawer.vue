@@ -1,27 +1,32 @@
 <script lang="ts" setup>
-import type { HumanInfo } from '@vben/types';
+import type { HumanInfo, ItemInfo } from '@vben/types';
 
 import { ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
 import {
   departmentOptions,
-  educationOptions,
-  employmentTypeOptions,
-  genderOptions,
-  marryOptions,
-  workStatusOptions,
+  itemRelaTypeOptions,
+  itemTypeOptions,
 } from '@vben/types';
-
+import {processFormParams} from '#/api/human/human'
+import DepartmentEmployeeSelect from '#/views/utils/DepartmentEmployeeSelect.vue';
 import { message } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
-import { submitHumanInfo } from '#/api/human/human';
+import { submitItemInfo } from '#/api/item/item';
 // import { isEqual } from 'lodash-es';
 
 const isDirty = ref(false); // 记录数据是否被修改
 const isInitializing = ref(false); // 标记是否处于初始化阶段
-
+const participantsProps = ref({
+  autoLoad: true,
+  placeholder: '请选择人员',
+  multiple: true,
+  filterable: true,
+  clearable: true,
+  useWorkIdMode: true, // 确保是工号模式，这样组件返回的是工号数组
+});
 const [Drawer, drawerApi] = useVbenDrawer({
   destroyOnClose: true,
   onCancel() {
@@ -33,8 +38,14 @@ const [Drawer, drawerApi] = useVbenDrawer({
         drawerApi.close();
         return;
       }
-      await submitHumanInfo((await formApi.submitForm()) as HumanInfo);
-      message.success('提交成功');
+      debugger;
+      const submitItems = processFormParams((await formApi.submitForm()),['follower', 'responsibleP'] as const);
+      const response = await submitItemInfo(submitItems as ItemInfo);
+      if(response.state === 200){
+        message.success('提交成功');
+      }else{
+        message.error('提交失败');
+      }
       formApi.resetForm();
       isDirty.value = false; // 提交后重置脏状态
       drawerApi.close();
@@ -44,7 +55,6 @@ const [Drawer, drawerApi] = useVbenDrawer({
     }
   },
   onOpenChange(isOpen: boolean) {
-    debugger;
     if (isOpen) {
       isInitializing.value = true; // 标记初始化开始
       const initialData = drawerApi.getData<Record<string, any>>() || {};
@@ -54,7 +64,7 @@ const [Drawer, drawerApi] = useVbenDrawer({
       isDirty.value = false;
     }
   },
-  title: '员工信息',
+  title: '事项信息',
 });
 
 const [Form, formApi] = useVbenForm({
@@ -66,154 +76,90 @@ const [Form, formApi] = useVbenForm({
   layout: 'vertical',
   schema: [
     {
-      component: 'Input',
+      component:'Input',
+      fieldName:'itemId',
+      label:'事项编号',
       componentProps: {
         disabled: true,
         placeholder: '系统自动生成',
       },
-      fieldName: 'id',
-      label: '工号',
-    },
-    {
-      component: 'RadioGroup',
-      fieldName: 'isWork',
-      label: '在职状态',
-      componentProps: {
-        options: workStatusOptions,
-      },
     },
     {
       component: 'Input',
-      componentProps: {
-        disabled: true,
-        placeholder: '系统自动生成',
-      },
-      fieldName: 'attendanceId',
-      label: '考勤号',
+      defaultValue: '',
+      fieldName: 'itemName',
+      label: '事项名称',
     },
     {
       component: 'Select',
       componentProps: {
-        options: departmentOptions,
-        placeholder: '请选择部门',
         allowClear: true,
-        filterOption: true,
-        showSearch: true,
+        options: itemRelaTypeOptions,
+        placeholder: '请选择',
+      },
+      fieldName: 'relaType',
+      label: '关联类型',
+    },
+    {
+      component: 'Select',
+      componentProps: {
+        allowClear: true,
+        options: itemTypeOptions,
+        placeholder: '请选择',
+      },
+      fieldName: 'itemType',
+      label: '事项类型',
+    },
+    {
+      component: 'Select',
+      componentProps: {
+        allowClear: true,
+        options: departmentOptions,
+        placeholder: '请选择',
       },
       fieldName: 'dept',
-      label: '部门',
+      label: '责任部门',
     },
     {
-      component: 'Input',
+      component: DepartmentEmployeeSelect,
+      fieldName: 'responsibleP',
+      label: '负责人',
       componentProps: {
-        placeholder: '请输入姓名',
+        ...participantsProps.value,
       },
-      fieldName: 'cnName',
-      label: '姓名',
+        // 正确的值转换方式
+  valueModifier: {
+    get: (value) => {
+      if (typeof value === 'string') {
+        return value.split(',').filter(Boolean);
+      }
+      return value || [];
     },
-    {
-      component: 'RadioGroup',
-      componentProps: {
-        options: genderOptions,
-      },
-      fieldName: 'sex',
-      label: '性别',
+    set: (value) => {
+      return Array.isArray(value) ? value.join(',') : value;
+    }
+  }
     },
-    {
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入身份证号',
-      },
-      fieldName: 'idNbr',
-      label: '身份证号',
+{
+  component: DepartmentEmployeeSelect,
+  fieldName: 'follower',
+  label: '跟进人',
+  componentProps: {
+    ...participantsProps.value,
+  },
+  // 正确的值转换方式
+  valueModifier: {
+    get: (value) => {
+      if (typeof value === 'string') {
+        return value.split(',').filter(Boolean);
+      }
+      return value || [];
     },
-    {
-      component: 'Select',
-      componentProps: {
-        options: educationOptions,
-        placeholder: '请选择学历',
-        showSearch: true,
-      },
-      fieldName: 'edu',
-      label: '学历',
-    },
-    {
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入籍贯',
-      },
-      fieldName: 'nativePlace',
-      label: '籍贯',
-    },
-    {
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入民族',
-      },
-      fieldName: 'ethnicGroup',
-      label: '民族',
-    },
-    {
-      component: 'RadioGroup',
-      componentProps: {
-        options: marryOptions,
-      },
-      fieldName: 'isMarried',
-      label: '婚姻状况',
-    },
-    {
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入职务',
-      },
-      fieldName: 'title',
-      label: '职务',
-    },
-    {
-      component: 'Select',
-      componentProps: {
-        options: employmentTypeOptions,
-      },
-      fieldName: 'employeeType',
-      label: '用工性质',
-    },
-    {
-      component: 'DatePicker',
-      componentProps: {
-        format: 'YYYY-MM-DD',
-        valueFormat: 'YYYY-MM-DD',
-        placeholder: '请选择入职日期',
-      },
-      fieldName: 'enterDate',
-      label: '入职日期',
-    },
-    {
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入联系方式',
-      },
-      fieldName: 'phone',
-      label: '联系方式',
-    },
-    {
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入详细地址',
-        autoSize: { minRows: 2 },
-      },
-      fieldName: 'address',
-      label: '家庭住址',
-    },
-    {
-      component: 'DatePicker',
-      componentProps: {
-        format: 'YYYY-MM-DD',
-        valueFormat: 'YYYY-MM-DD',
-        placeholder: '请选择出生日期',
-      },
-      fieldName: 'birthday',
-      label: '出生日期',
-    },
+    set: (value) => {
+      return Array.isArray(value) ? value.join(',') : value;
+    }
+  }
+},
   ],
   wrapperClass: 'grid grid-cols-2 gap-4',
   showDefaultActions: false,

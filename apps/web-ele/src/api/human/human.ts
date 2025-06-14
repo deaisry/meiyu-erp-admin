@@ -111,3 +111,46 @@ export const getEmployeeNames = (keys: string | string[]): string => {
   }
   return keys.map((k) => getEmployeeName(k)).join(', ');
 };
+
+export function processFormParams<T extends Record<string, any>>(
+  formValues: T,
+  fields: (keyof T)[]
+): T {
+  // 1. 创建原始对象的浅拷贝，避免修改原始对象
+  const processedParams: T = { ...formValues };
+  if(!fields) return processedParams;
+  // 2. 遍历需要处理的字段
+  fields.forEach(field => {
+    // 3. 获取字段值
+    const fieldValue = processedParams[field];
+
+    // 4. 仅处理数组类型的值
+    if (Array.isArray(fieldValue)) {
+      // 5. 处理每个元素并生成新的数组
+      const processedIds = fieldValue.map(item => {
+        // 确保元素转换为字符串
+        const strValue = String(item);
+
+        // 尝试按 _ 分割
+        const parts = strValue.split('_');
+
+        // 如果包含 _ 分割符，取最后一个部分作为ID
+        if (parts.length > 1) {
+          return parts[parts.length - 1];
+        }
+
+        // 没有 _ 的情况下，尝试提取纯数字
+        const digitsOnly = strValue.replaceAll(/\D/g, '');
+
+        // 如果提取到数字就返回，否则返回原始字符串
+        return digitsOnly || strValue;
+      });
+
+      // 6. 更新处理后的参数
+      (processedParams as any)[field] = processedIds.join(',');
+    }
+  });
+
+  // 7. 返回处理后的对象
+  return processedParams;
+}

@@ -20,7 +20,7 @@ export async function fetchItemList(
 
 export async function submitItemInfo(params: ItemInfo) {
   const response = await requestClient.post<BaseResponse>(
-    '/item/insertOrUpdate',
+    '/item/insertOrUpdateItemInfo',
     params,
   );
   return response;
