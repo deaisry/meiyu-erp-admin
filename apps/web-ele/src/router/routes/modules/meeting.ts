@@ -9,6 +9,7 @@
  * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
  */
 import type { RouteRecordRaw } from 'vue-router';
+
 import { $t } from '#/locales';
 
 const routes: RouteRecordRaw[] = [
@@ -40,7 +41,7 @@ const routes: RouteRecordRaw[] = [
       title: '会议详情',
       hideInMenu: true,
     },
-  }
+  },
 ];
 
 export default routes;

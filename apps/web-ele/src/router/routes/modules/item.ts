@@ -14,6 +14,24 @@ const routes: RouteRecordRaw[] = [
     path: '/item',
     component: () => import('#/views/item/index.vue'),
   },
+  {
+    path: '/item/add',
+    name: 'ItemAdd',
+    component: () => import('#/views/item/add.vue'),
+    meta: {
+      title: '新增事项',
+      hideInMenu: true,
+    },
+  },
+  {
+    path: '/item/detail/:itemId',
+    name: 'ItemDetail',
+    component: () => import('#/views/item/detail.vue'),
+    meta: {
+      title: '事项详情',
+      hideInMenu: true,
+    },
+  },
 ];
 
 export default routes;

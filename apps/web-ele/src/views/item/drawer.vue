@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { HumanInfo, ItemInfo } from '@vben/types';
+import type { ItemInfo } from '@vben/types';
 
 import { ref } from 'vue';
 
@@ -9,12 +9,13 @@ import {
   itemRelaTypeOptions,
   itemTypeOptions,
 } from '@vben/types';
-import {processFormParams} from '#/api/human/human'
-import DepartmentEmployeeSelect from '#/views/utils/DepartmentEmployeeSelect.vue';
+
 import { message } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
+import { processFormParams } from '#/api/human/human';
 import { submitItemInfo } from '#/api/item/item';
+import DepartmentEmployeeSelect from '#/views/utils/DepartmentEmployeeSelect.vue';
 // import { isEqual } from 'lodash-es';
 
 const isDirty = ref(false); // 记录数据是否被修改
@@ -39,11 +40,14 @@ const [Drawer, drawerApi] = useVbenDrawer({
         return;
       }
       debugger;
-      const submitItems = processFormParams((await formApi.submitForm()),['follower', 'responsibleP'] as const);
+      const submitItems = processFormParams(await formApi.submitForm(), [
+        'follower',
+        'responsibleP',
+      ] as const);
       const response = await submitItemInfo(submitItems as ItemInfo);
-      if(response.state === 200){
+      if (response.state === 200) {
         message.success('提交成功');
-      }else{
+      } else {
         message.error('提交失败');
       }
       formApi.resetForm();
@@ -76,9 +80,9 @@ const [Form, formApi] = useVbenForm({
   layout: 'vertical',
   schema: [
     {
-      component:'Input',
-      fieldName:'itemId',
-      label:'事项编号',
+      component: 'Input',
+      fieldName: 'itemId',
+      label: '事项编号',
       componentProps: {
         disabled: true,
         placeholder: '系统自动生成',
@@ -127,39 +131,39 @@ const [Form, formApi] = useVbenForm({
       componentProps: {
         ...participantsProps.value,
       },
-        // 正确的值转换方式
-  valueModifier: {
-    get: (value) => {
-      if (typeof value === 'string') {
-        return value.split(',').filter(Boolean);
-      }
-      return value || [];
+      // 正确的值转换方式
+      valueModifier: {
+        get: (value) => {
+          if (typeof value === 'string') {
+            return value.split(',').filter(Boolean);
+          }
+          return value || [];
+        },
+        set: (value) => {
+          return Array.isArray(value) ? value.join(',') : value;
+        },
+      },
     },
-    set: (value) => {
-      return Array.isArray(value) ? value.join(',') : value;
-    }
-  }
+    {
+      component: DepartmentEmployeeSelect,
+      fieldName: 'follower',
+      label: '跟进人',
+      componentProps: {
+        ...participantsProps.value,
+      },
+      // 正确的值转换方式
+      valueModifier: {
+        get: (value) => {
+          if (typeof value === 'string') {
+            return value.split(',').filter(Boolean);
+          }
+          return value || [];
+        },
+        set: (value) => {
+          return Array.isArray(value) ? value.join(',') : value;
+        },
+      },
     },
-{
-  component: DepartmentEmployeeSelect,
-  fieldName: 'follower',
-  label: '跟进人',
-  componentProps: {
-    ...participantsProps.value,
-  },
-  // 正确的值转换方式
-  valueModifier: {
-    get: (value) => {
-      if (typeof value === 'string') {
-        return value.split(',').filter(Boolean);
-      }
-      return value || [];
-    },
-    set: (value) => {
-      return Array.isArray(value) ? value.join(',') : value;
-    }
-  }
-},
   ],
   wrapperClass: 'grid grid-cols-2 gap-4',
   showDefaultActions: false,

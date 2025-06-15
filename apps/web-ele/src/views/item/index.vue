@@ -18,15 +18,14 @@ import {
 import { Button } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
-import {processFormParams} from '#/api/human/human';
-
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { processFormParams } from '#/api/human/human';
 import { deleteItemInfo, fetchItemList } from '#/api/item/item';
 import { mapEnumValue } from '#/api/utils/format';
-import ExtraDrawer from './drawer.vue';
 import DepartmentEmployeeSelect from '#/views/utils/DepartmentEmployeeSelect.vue';
 
 import AddFormModal from './addModal.vue';
+import ExtraDrawer from './drawer.vue';
 import AssignFormModal from './modal.vue';
 import Overview from './overview.vue';
 
@@ -244,7 +243,10 @@ const gridOptions: VxeGridProps<ItemInfo> = {
       query: async ({ page }, formValues) => {
         try {
           // 定义处理函数
-          const submitParams = processFormParams(formValues,['follower', 'responsibleP'] as const);
+          const submitParams = processFormParams(formValues, [
+            'follower',
+            'responsibleP',
+          ] as const);
           const response = await fetchItemList({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
@@ -345,8 +347,9 @@ function onDelete(row: ItemInfo) {
 
 // 新增事项弹窗
 function openAdd() {
-  console.info('whaaaat?');
-  addFormModalApi.open();
+  router.push({
+    name: 'ItemAdd',
+  });
 }
 </script>
 
