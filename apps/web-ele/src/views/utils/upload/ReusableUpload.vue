@@ -16,6 +16,7 @@ import { ref } from 'vue';
 import { ElButton, ElMessage, ElMessageBox, ElUpload } from 'element-plus';
 
 import { upload_file_url } from '#/api/utils/upload'; // 导入上传方法
+import ReusableUpload from '#/views/utils/upload/ReusableUpload.vue';
 
 const attendanceUploadUrl = '/human/import';
 const employeeUploadUrl = '/employee/import';
@@ -74,6 +75,17 @@ const customUpload: UploadProps['httpRequest'] = async (options) => {
     ElMessage.error(`上传异常: ${err.message}`);
   }
 };
+defineExpose({
+  fileList,
+  clearFiles: () => {
+    fileList.value = [];
+    emit('file-change', fileList.value);
+  },
+  submitUpload: () => {
+    // 如果需要手动触发上传，可以调用此方法
+    // 注意：这需要与autoUpload=false配合使用
+  },
+});
 </script>
 <template>
   <ElUpload
@@ -89,10 +101,10 @@ const customUpload: UploadProps['httpRequest'] = async (options) => {
   >
     <ElButton type="primary">上传文件</ElButton>
   </ElUpload>
-  <!-- <ReusableUpload
+  <ReusableUpload
     :upload-url="employeeUploadUrl"
     button-text="上传员工信息"
     :limit="1"
     accept=".xlsx,.xls,.csv"
-  /> -->
+  />
 </template>
