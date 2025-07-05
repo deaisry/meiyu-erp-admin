@@ -22,6 +22,7 @@ import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { activeEmp, fetchHumanList, inactiveEmp } from '#/api/human/human';
 import { mapEnumValue } from '#/api/utils/format';
 import ExtraDrawer from '#/views/human/info/drawer.vue';
+import FileUploader from '#/views/utils/upload/FileUploader.vue';
 
 import ExtraFormModal from './modal.vue';
 import Overview from './overview.vue';
@@ -305,6 +306,17 @@ function inactive(row: HumanInfo) {
     message.error(`职工${row.cnName}停用失败`);
   }
 }
+
+const handleSuccess = (file, response) => {
+  debugger;
+  message.info('上传成功');
+  console.log('上传成功:', file.name, response);
+};
+
+const handleError = (file, error) => {
+  message.error('上传失败');
+  console.error('上传失败:', file.name, error);
+};
 </script>
 
 <template>
@@ -312,6 +324,15 @@ function inactive(row: HumanInfo) {
     <Drawer />
     <Overview :dept-list="deptList" />
     <Grid>
+      <template #toolbar-actions>
+        <FileUploader
+          upload-url="/human/import"
+          button-text="上传员工信息"
+          :multiple="true"
+          @success="handleSuccess"
+          @error="handleError"
+        />
+      </template>
       <template #action="{ row }">
         <Button type="link" @click="open(row)"> 编辑 </Button>
         <Button type="link" :disabled="row.isWork === '1'" @click="active(row)">
