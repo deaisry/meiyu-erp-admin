@@ -1,3 +1,13 @@
+<!--
+ * @Author: deaisry
+ * @Date: 2025-07-05 13:17:29
+ * @LastEditors: e deaisry@163.com
+ * @LastEditTime: 2025-07-07 19:37:52
+ * @FilePath: \meiyu-erp-admin\apps\web-ele\src\views\utils\upload\FileUploader.vue
+ * @Description:
+ *
+ * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
+-->
 <script lang="ts" setup>
 import type { UploadProps, UploadUserFile } from 'element-plus';
 
