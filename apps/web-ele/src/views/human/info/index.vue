@@ -329,8 +329,6 @@ const handleError = (file, error) => {
           upload-url="/human/import"
           button-text="上传员工信息"
           :multiple="true"
-          @success="handleSuccess"
-          @error="handleError"
         />
       </template>
       <template #action="{ row }">
