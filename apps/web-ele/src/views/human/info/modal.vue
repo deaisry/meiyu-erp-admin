@@ -14,29 +14,29 @@ import {
 // 定义字段配置
 const fieldConfig = [
   { key: 'id', label: '工号' },
-  { key: 'attendanceId', label: '考勤号' },
   { key: 'cnName', label: '姓名' },
   { key: 'sex', label: '性别', options: genderOptions },
-  { key: 'idNbr', label: '身份证号' },
+  { key: 'dept', label: '部门', options: departmentOptions },
+  { key: 'title', label: '职务' },
   { key: 'edu', label: '学历', options: educationOptions },
   { key: 'nativePlace', label: '籍贯' },
   { key: 'ethnicGroup', label: '民族' },
-  { key: 'isMarried', label: '婚姻状况', options: marryOptions },
-  { key: 'title', label: '职务' },
-  { key: 'employeeType', label: '用工性质', options: employmentTypeOptions },
+  { key: 'dorm', label: '宿舍' }, // 前9个字段
   { key: 'enterDate', label: '入职日期' },
+  { key: 'employeeType', label: '用工性质', options: employmentTypeOptions },
+  { key: 'idNbr', label: '身份证号' },
   { key: 'phone', label: '联系方式' },
   { key: 'birthday', label: '出生日期' },
-  { key: 'dept', label: '部门', options: departmentOptions },
   { key: 'isWork', label: '在职状态', options: workStatusOptions },
+  { key: 'isMarried', label: '婚姻状况', options: marryOptions },
   { key: 'address', label: '家庭住址' },
 ];
 
 const data = ref<Record<string, any>>({});
 
-// 计算显示数据
-const displayData = computed(() => {
-  return fieldConfig.map((item) => {
+// 计算显示数据（分组为两列）
+const groupedDisplayData = computed(() => {
+  const items = fieldConfig.map((item, index) => {
     const value = data.value?.[item.key] ?? '';
     let displayValue = value;
 
@@ -47,11 +47,17 @@ const displayData = computed(() => {
       displayValue = option ? option.label : value;
     }
 
+    // 添加索引和类别标识
     return {
       ...item,
+      index,
       value: displayValue || '未填写',
     };
   });
+
+  // 将数据分成两列
+  const midIndex = Math.ceil(items.length / 2);
+  return [items.slice(0, midIndex), items.slice(midIndex)];
 });
 
 const [Modal, modalApi] = useVbenModal({
@@ -72,37 +78,87 @@ const [Modal, modalApi] = useVbenModal({
 </script>
 
 <template>
-  <Modal title="员工信息详情">
-    <Transition name="fade">
-      <div
-        v-if="visible"
-        class="confirm-dialog-overlay"
-        @click.self="handleOverlayClick"
-      >
-        <div class="confirm-dialog">
-          <div class="confirm-dialog-header">
-            <h3>确认删除</h3>
+  <Modal title="人员信息详情" width="800px">
+    <div class="modal-container">
+      <div class="grid-container">
+        <div class="grid-column">
+          <div
+            v-for="(item, index) in groupedDisplayData[0]"
+            :key="index"
+            class="data-item"
+          >
+            <span
+              class="label"
+              :class="{
+                'short-label': item.index < 9,
+                'long-label': item.index >= 9,
+              }"
+              >{{ item.label }}：</span
+            >
+            <span class="value">{{ item.value }}</span>
           </div>
-
-          <div class="confirm-dialog-body">
-            <div class="icon-wrapper">
-              <svg class="warning-icon" viewBox="0 0 24 24">
-                <path
-                  fill="currentColor"
-                  d="M12,2L1,21H23M12,6l7.53,13H4.47M11,10v4h2v-4h-2m0,6v2h2v-2h-2Z"
-                />
-              </svg>
-            </div>
-            <!-- <p>{{ message }}</p> -->
-          </div>
-
-          <div class="confirm-dialog-footer">
-            <button class="cancel-btn" @click="cancel">取消</button>
-            <button class="confirm-btn" @click="confirm">确认删除</button>
+        </div>
+        <div class="grid-column">
+          <div
+            v-for="(item, index) in groupedDisplayData[1]"
+            :key="index"
+            class="data-item"
+          >
+            <span
+              class="label"
+              :class="{
+                'short-label': item.index < 9,
+                'long-label': item.index >= 9,
+              }"
+              >{{ item.label }}：</span
+            >
+            <span class="value">{{ item.value }}</span>
           </div>
         </div>
       </div>
-    </Transition>
+    </div>
   </Modal>
 </template>
-<style scoped></style>
+
+<style scoped>
+.modal-container {
+  padding: 16px;
+}
+
+.grid-container {
+  display: flex;
+  gap: 16px; /* 减少列间距 */
+}
+
+.grid-column {
+  flex: 1;
+}
+
+.data-item {
+  display: flex;
+  margin-bottom: 6px; /* 大幅减少行间距 */
+  line-height: 1.3; /* 减少行高 */
+}
+
+/* 标签样式 */
+.label {
+  white-space: nowrap; /* 确保标签不换行 */
+  padding-right: 8px; /* 减少标签右间距 */
+}
+
+.label.short-label {
+  min-width: 40px;
+}
+
+.label.long-label {
+  min-width: 80px;
+}
+
+/* 值样式 - 紧凑布局 */
+.value {
+  word-break: break-word; /* 确保长词可以断行 */
+  white-space: normal;
+  line-height: 1.3; /* 值行高保持一致 */
+  flex: 1;
+}
+</style>

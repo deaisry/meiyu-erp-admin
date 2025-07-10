@@ -201,6 +201,11 @@ const gridOptions: VxeGridProps<HumanInfo> = {
       width: 140,
     },
     {
+      field: 'dorm',
+      title: '宿舍',
+      width: 60,
+    },
+    {
       field: 'action',
       fixed: 'right',
       slots: { default: 'action' },

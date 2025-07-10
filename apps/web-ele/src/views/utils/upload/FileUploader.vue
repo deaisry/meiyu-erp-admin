@@ -1,17 +1,4 @@
-<<<<<<< HEAD
 <!-- eslint-disable n/no-extraneous-import -->
-=======
-<!--
- * @Author: deaisry
- * @Date: 2025-07-05 13:17:29
- * @LastEditors: e deaisry@163.com
- * @LastEditTime: 2025-07-07 19:37:52
- * @FilePath: \meiyu-erp-admin\apps\web-ele\src\views\utils\upload\FileUploader.vue
- * @Description:
- *
- * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
--->
->>>>>>> 88b7d4d35c06e7fe56a66e22046cbd4a341b7479
 <script lang="ts" setup>
 import type {
   UploadInstance,
@@ -41,6 +28,7 @@ const props = defineProps<{
   buttonText?: string;
   limit?: number;
   multiple?: boolean;
+  templateType: string;
   uploadButtonText?: string;
   uploadUrl: string;
 }>();
