@@ -7,6 +7,15 @@ import DragFileUploader from './DragFileUploader.vue';
 
 const data = ref();
 
+const props = defineProps<{
+  buttonText?: string;
+  limit?: number;
+  multiple?: boolean;
+  templateType: string;
+  uploadButtonText?: string;
+  uploadUrl: string;
+}>();
+
 const [Modal, modalApi] = useVbenModal({
   onCancel() {
     modalApi.close();
@@ -22,5 +31,7 @@ const [Modal, modalApi] = useVbenModal({
 });
 </script>
 <template>
-  <DragFileUploader />
+  <Modal>
+    <DragFileUploader />
+  </Modal>
 </template>

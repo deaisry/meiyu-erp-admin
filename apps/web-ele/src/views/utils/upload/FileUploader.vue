@@ -1,4 +1,4 @@
-<!-- eslint-disable n/no-extraneous-import -->
+
 <script lang="ts" setup>
 import type {
   UploadInstance,
