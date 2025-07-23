@@ -1,27 +1,3 @@
-
-<!-- <script setup lang="ts">
-import FileUploadModal from '#/views/utils/upload/FileUploadModal.vue';
-import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
-import {ElButton} from 'Element-plus';
-const [UpLoadModal, UpLoadModalApi] = useVbenModal({
-  connectedComponent: FileUploadModal,
-});
-// 打开详情弹窗
-function openModal() {
-  UpLoadModalApi
-    .open();
-}
-</script>
-
-<template>
-  <Page auto-content-height>
-  <template #action>
-    <ElButton @click="openModal()">上传人员信息</ElButton>
-    <UpLoadModal/>
-  </template>
-  </Page>
-</template> -->
-
 <script lang="ts" setup>
 import type { HumanInfo } from '@vben/types';
 
@@ -40,7 +16,6 @@ import {
 } from '@vben/types';
 
 import { Button, message } from 'ant-design-vue';
-import {ElButton} from 'element-plus';
 import dayjs from 'dayjs';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -49,22 +24,8 @@ import { mapEnumValue } from '#/api/utils/format';
 import ExtraDrawer from '#/views/human/info/drawer.vue';
 import FileUploader from '#/views/utils/upload/FileUploader.vue';
 
-import ExtraFormModal from '../info/modal.vue';
-import Overview from '../info/overview.vue';
-import FileUploadModal from '#/views/utils/upload/FileUploadModal.vue';
-
-// 上传弹窗
-const [UpLoadModal, UpLoadModalApi] = useVbenModal({
-  connectedComponent: FileUploadModal,
-});
-
-// 打开上传弹窗
-function openUploadModal() {
-  UpLoadModalApi
-    .open();
-}
-
-
+import ExtraFormModal from './modal.vue';
+import Overview from './overview.vue';
 
 const formOptions: VbenFormProps = {
   // 默认收起
@@ -369,13 +330,11 @@ const handleError = (file, error) => {
     <Overview :dept-list="deptList" />
     <Grid>
       <template #toolbar-actions>
-        <!-- <FileUploader
+        <FileUploader
           upload-url="/human/import"
-          button-text="上传员工信息"
+          button-text="上传考勤信息"
           :multiple="true"
-        /> -->
-        <ElButton  @click="openUploadModal()">上传员工信息</ElButton>
-        <UpLoadModal/>
+        />
       </template>
       <template #action="{ row }">
         <Button type="link" @click="open(row)"> 编辑 </Button>
@@ -395,4 +354,3 @@ const handleError = (file, error) => {
     </Grid>
   </Page>
 </template>
-
