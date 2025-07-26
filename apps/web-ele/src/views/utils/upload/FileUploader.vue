@@ -1,4 +1,3 @@
-
 <script lang="ts" setup>
 import type {
   UploadInstance,
@@ -28,9 +27,9 @@ const props = defineProps<{
   buttonText?: string;
   limit?: number;
   multiple?: boolean;
-  templateType: string;
+  templateType?: string;
   uploadButtonText?: string;
-  uploadUrl: string;
+  uploadUrl?: string;
 }>();
 const emit = defineEmits<{
   error: [file: UploadUserFile, error: any];
@@ -207,10 +206,10 @@ watch(
     :on-exceed="handleExceed"
     :auto-upload="false"
     :http-request="customUpload"
-    class="employee-uploader"
+    class="uploader"
   >
     <template #trigger>
-      <ElButton type="primary" class="select-button">
+      <ElButton>
         {{ props.buttonText || '上传员工信息' }}
       </ElButton>
     </template>
@@ -244,3 +243,9 @@ watch(
     <div v-else>加载预览失败</div>
   </ElDialog>
 </template>
+
+<style lang="css">
+.uploader {
+  /* padding: 8px; */
+}
+</style>

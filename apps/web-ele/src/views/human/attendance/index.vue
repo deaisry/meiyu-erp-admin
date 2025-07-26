@@ -9,17 +9,19 @@ import { ref } from 'vue';
 import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
 import {
   departmentOptions,
-  educationOptions,
   employmentTypeOptions,
   genderOptions,
+  weekdayOptions,
   workStatusOptions,
 } from '@vben/types';
 
 import { Button, message } from 'ant-design-vue';
 import dayjs from 'dayjs';
+import { ElButton } from 'element-plus';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { activeEmp, fetchHumanList, inactiveEmp } from '#/api/human/human';
+import { fetchAttendanceList } from '#/api/human/attendance';
+import { activeEmp, inactiveEmp } from '#/api/human/human';
 import { mapEnumValue } from '#/api/utils/format';
 import ExtraDrawer from '#/views/human/info/drawer.vue';
 import FileUploader from '#/views/utils/upload/FileUploader.vue';
@@ -108,24 +110,18 @@ const gridOptions: VxeGridProps<HumanInfo> = {
     {
       field: 'id',
       title: '工号',
-      width: 120,
-    },
-    {
-      field: 'isWork',
-      title: '在职状态',
       width: 80,
-      formatter: ({ cellValue }) => mapEnumValue(workStatusOptions, cellValue),
     },
     {
       field: 'attendanceId',
       title: '考勤号',
-      width: 120,
+      width: 80,
     },
     {
       field: 'dept',
       title: '部门',
       sortable: true,
-      width: 120,
+      width: 80,
       formatter: ({ cellValue }) => mapEnumValue(departmentOptions, cellValue),
     },
     {
@@ -134,98 +130,70 @@ const gridOptions: VxeGridProps<HumanInfo> = {
       width: 100,
     },
     {
-      field: 'sex',
-      title: '性别',
-      formatter: ({ cellValue }) => mapEnumValue(genderOptions, cellValue),
+      field: 'isException',
+      title: '是否异常',
       width: 80,
-    },
-    {
-      field: 'idNbr',
-      title: '身份证号',
-      width: 180,
-    },
-    {
-      field: 'edu',
-      title: '学历',
-      formatter: ({ cellValue }) => mapEnumValue(educationOptions, cellValue),
-    },
-    {
-      field: 'nativePlace',
-      title: '籍贯',
-      width: 120,
-    },
-    {
-      field: 'ethnicGroup',
-      title: '民族',
-      width: 100,
-    },
-    {
-      field: 'isMarried',
-      title: '婚否',
       formatter: ({ cellValue }) => (cellValue === '1' ? '是' : '否'),
+    },
+    {
+      field: 'dateTime',
+      title: '日期',
+      width: '140',
+      formatter: ({ cellValue }) => dayjs(cellValue).format('YYYY-MM-DD'),
+    },
+    {
+      field: 'dayTime',
+      title: '星期',
+      width: 80,
+      formatter: ({ cellValue }) => mapEnumValue(weekdayOptions, cellValue),
+    },
+    {
+      field: 'classType',
+      title: '班别',
       width: 80,
     },
     {
-      field: 'title',
-      title: '职务',
-      width: 120,
+      field: 'checkTimes',
+      title: '打卡次数',
+      width: 80,
     },
     {
-      field: 'employeeType',
-      title: '用工性质',
-      formatter: ({ cellValue }) =>
-        mapEnumValue(employmentTypeOptions, cellValue),
-      width: 120,
+      field: 'checkOne',
+      title: '第一次打卡时间',
+      width: 160,
     },
     {
-      field: 'enterDate',
-      title: '入厂日期',
-      // formatter: ({ cellValue }) =>
-      //   dayjs(cellValue).format('YYYY-MM-DD'),
-      width: 120,
+      field: 'checkTwo',
+      title: '第二次打卡时间',
+      width: 160,
     },
     {
-      field: 'phone',
-      title: '联系方式',
-      width: 120,
+      field: 'checkThree',
+      title: '第三次打卡时间',
+      width: 160,
     },
     {
-      field: 'address',
-      title: '家庭住址',
-      width: 200,
-    },
-    {
-      field: 'birthday',
-      title: '出生日期',
-      formatter: ({ cellValue }) => dayjs(cellValue).format('YYYY-MM-DD'),
-      width: 140,
-    },
-    {
-      field: 'dorm',
-      title: '宿舍',
-      width: 60,
+      field: 'checkFour',
+      title: '第四次打卡时间',
+      width: 160,
     },
     {
       field: 'action',
       fixed: 'right',
       slots: { default: 'action' },
       title: '操作',
-      width: 255,
+      width: 200,
     },
   ],
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues) => {
         try {
-          const response = await fetchHumanList({
+          const response = await fetchAttendanceList({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...formValues,
           });
-          deptList.value = response.list.map((item) => ({
-            ...item,
-            dept: mapEnumValue(departmentOptions, item.dept) || item.dept,
-          }));
           return {
             items: response.data.records, // 关键字段映射
             total: response.data.total,
@@ -335,20 +303,11 @@ const handleError = (file, error) => {
           button-text="上传考勤信息"
           :multiple="true"
         />
+        <ElButton>批量删除</ElButton>
       </template>
       <template #action="{ row }">
         <Button type="link" @click="open(row)"> 编辑 </Button>
-        <Button type="link" :disabled="row.isWork === '1'" @click="active(row)">
-          启用
-        </Button>
-        <Button
-          type="link"
-          :disabled="row.isWork === '0'"
-          @click="inactive(row)"
-        >
-          停用
-        </Button>
-        <Button type="link" @click="openModal(row)">详情</Button>
+        <Button type="link" @click="openModal(row)">删除</Button>
         <FormModal />
       </template>
     </Grid>

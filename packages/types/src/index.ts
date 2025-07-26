@@ -6,6 +6,7 @@ export type * from './base/PaginationParams';
 export type * from './base/PaginationResponse';
 export type * from './base/PaginationResult';
 export * from './enum';
+export type * from './human/AttendanceInfo';
 export type * from './human/DeptCount';
 export type * from './human/HumanApiResponse';
 export type * from './human/HumanInfo';

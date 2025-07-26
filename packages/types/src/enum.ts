@@ -93,6 +93,17 @@ export enum FollowStatusEnum {
   PENDING = '0',
 }
 
+// 星期枚举
+export enum WeekdayEnum {
+  Friday = '5',
+  Monday = '1',
+  Saturday = '6',
+  Sunday = '7',
+  Thursday = '4',
+  Tuesday = '2',
+  Wednesday = '3',
+}
+
 // 跟进状态选项
 export const followStatusOptions = createEnumOptions(FollowStatusEnum, {
   PENDING: '待跟进',
@@ -193,6 +204,16 @@ export const meetingPlaceOptions = createEnumOptions(MeetingPlaceEnum, {
 export const meetingConveneOptions = createEnumOptions(MeetingConveneEnum, {
   notConvene: '未召开',
   isConvene: '已召开',
+});
+
+export const weekdayOptions = createEnumOptions(WeekdayEnum, {
+  Monday: '星期一',
+  Tuesday: '星期二',
+  Wednesday: '星期三',
+  Thursday: '星期四',
+  Friday: '星期五',
+  Saturday: '星期六',
+  Sunday: '星期日',
 });
 
 export const departmentNameMap = Object.fromEntries(
