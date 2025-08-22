@@ -1,164 +1,80 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
-
 import { useVbenModal } from '@vben/common-ui';
-import {
-  departmentOptions,
-  educationOptions,
-  employmentTypeOptions,
-  genderOptions,
-  marryOptions,
-  workStatusOptions,
-} from '@vben/types';
+import { ElDatePicker, ElButton, ElMessage } from 'element-plus';
+import { ref } from 'vue';
+import { downloadAttendace } from '#/api/human/attendance'; // 调用封装好的下载函数
+import type { MonthPicker } from '@vben/types';
 
-// 定义字段配置
-const fieldConfig = [
-  { key: 'id', label: '工号' },
-  { key: 'cnName', label: '姓名' },
-  { key: 'sex', label: '性别', options: genderOptions },
-  { key: 'dept', label: '部门', options: departmentOptions },
-  { key: 'title', label: '职务' },
-  { key: 'edu', label: '学历', options: educationOptions },
-  { key: 'nativePlace', label: '籍贯' },
-  { key: 'ethnicGroup', label: '民族' },
-  { key: 'dorm', label: '宿舍' }, // 前9个字段
-  { key: 'enterDate', label: '入职日期' },
-  { key: 'employeeType', label: '用工性质', options: employmentTypeOptions },
-  { key: 'idNbr', label: '身份证号' },
-  { key: 'phone', label: '联系方式' },
-  { key: 'birthday', label: '出生日期' },
-  { key: 'isWork', label: '在职状态', options: workStatusOptions },
-  { key: 'isMarried', label: '婚姻状况', options: marryOptions },
-  { key: 'address', label: '家庭住址' },
-];
+const [Modal, modalApi] = useVbenModal();
+const selectMonth = ref<string>(''); // 只存一个月份
+const loading = ref(false);
 
-const data = ref<Record<string, any>>({});
+/**
+ * 处理下载
+ */
+const handleDownload = async () => {
+  if (!selectMonth.value) {
+    ElMessage.warning('请选择月份');
+    return;
+  }
 
-// 计算显示数据（分组为两列）
-const groupedDisplayData = computed(() => {
-  const items = fieldConfig.map((item, index) => {
-    const value = data.value?.[item.key] ?? '';
-    let displayValue = value;
+  loading.value = true;
+  try {
+    await downloadAttendace({
+      month: selectMonth.value, // 假设后端接收字段是 month
+    } as MonthPicker);
 
-    if (item.options && value !== undefined && value !== null) {
-      const option = item.options.find(
-        (opt) => String(opt.value) === String(value),
-      );
-      displayValue = option ? option.label : value;
-    }
-
-    // 添加索引和类别标识
-    return {
-      ...item,
-      index,
-      value: displayValue || '未填写',
-    };
-  });
-
-  // 将数据分成两列
-  const midIndex = Math.ceil(items.length / 2);
-  return [items.slice(0, midIndex), items.slice(midIndex)];
-});
-
-const [Modal, modalApi] = useVbenModal({
-  showCancelButton: false,
-  showConfirmButton: false,
-  onCancel() {
+    ElMessage.success('下载成功');
     modalApi.close();
-  },
-  onConfirm() {
-    console.info('onConfirm');
-  },
-  onOpenChange(isOpen: boolean) {
-    if (isOpen) {
-      data.value = modalApi.getData<Record<string, any>>();
-    }
-  },
-});
+  } catch (error) {
+    ElMessage.error('下载失败，请稍后再试');
+  } finally {
+    loading.value = false;
+  }
+};
 </script>
 
 <template>
-  <Modal title="人员信息详情" width="800px">
-    <div class="modal-container">
-      <div class="grid-container">
-        <div class="grid-column">
-          <div
-            v-for="(item, index) in groupedDisplayData[0]"
-            :key="index"
-            class="data-item"
-          >
-            <span
-              class="label"
-              :class="{
-                'short-label': item.index < 9,
-                'long-label': item.index >= 9,
-              }"
-              >{{ item.label }}：</span
-            >
-            <span class="value">{{ item.value }}</span>
-          </div>
-        </div>
-        <div class="grid-column">
-          <div
-            v-for="(item, index) in groupedDisplayData[1]"
-            :key="index"
-            class="data-item"
-          >
-            <span
-              class="label"
-              :class="{
-                'short-label': item.index < 9,
-                'long-label': item.index >= 9,
-              }"
-              >{{ item.label }}：</span
-            >
-            <span class="value">{{ item.value }}</span>
-          </div>
-        </div>
+  <Modal title="下载考勤数据" width="400px" :footer="false">
+    <div class="flex flex-col gap-4">
+      <span>请选择下载月份</span>
+      <ElDatePicker
+        v-model="selectMonth"
+        type="month"
+        placeholder="选择月份"
+        value-format="YYYY-MM"
+      />
+      <div class="flex justify-end gap-2 mt-4">
+        <ElButton @click="modalApi.close()">取消</ElButton>
+        <ElButton
+          type="primary"
+          :loading="loading"
+          @click="handleDownload"
+        >
+          下载
+        </ElButton>
       </div>
     </div>
   </Modal>
 </template>
 
 <style scoped>
-.modal-container {
-  padding: 16px;
-}
-
-.grid-container {
+.flex {
   display: flex;
-  gap: 16px; /* 减少列间距 */
 }
-
-.grid-column {
-  flex: 1;
+.flex-col {
+  flex-direction: column;
 }
-
-.data-item {
-  display: flex;
-  margin-bottom: 6px; /* 大幅减少行间距 */
-  line-height: 1.3; /* 减少行高 */
+.gap-4 {
+  gap: 1rem;
 }
-
-/* 标签样式 */
-.label {
-  white-space: nowrap; /* 确保标签不换行 */
-  padding-right: 8px; /* 减少标签右间距 */
+.justify-end {
+  justify-content: flex-end;
 }
-
-.label.short-label {
-  min-width: 40px;
+.gap-2 {
+  gap: 0.5rem;
 }
-
-.label.long-label {
-  min-width: 80px;
-}
-
-/* 值样式 - 紧凑布局 */
-.value {
-  word-break: break-word; /* 确保长词可以断行 */
-  white-space: normal;
-  line-height: 1.3; /* 值行高保持一致 */
-  flex: 1;
+.mt-4 {
+  margin-top: 1rem;
 }
 </style>

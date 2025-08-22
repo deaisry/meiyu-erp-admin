@@ -43,6 +43,10 @@ export async function selectDeptMem() {
   );
 }
 
+export async function batchDeleteHuman(ids: Array<string | number>){
+  return await requestClient.delete<BaseResponse>(`/human/deleteByIds/${ids}`);
+}
+
 // 定义员工姓名映射类型
 export type EmployeeNameMap = Record<string, string>;
 

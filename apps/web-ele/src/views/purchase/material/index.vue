@@ -1,13 +1,3 @@
-<!--
- * @Author: deaisry
- * @Date: 2025-05-20 11:19:03
- * @LastEditors: e deaisry@163.com
- * @LastEditTime: 2025-08-07 17:02:16
- * @FilePath: \meiyu-erp-admin\apps\web-ele\src\views\human\info\index.vue
- * @Description:
- *
- * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
--->
 <script lang="ts" setup>
 import type { HumanInfo } from '@vben/types';
 
@@ -20,6 +10,8 @@ import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
 import {
   departmentOptions,
   educationOptions,
+  currencyOptions,
+  unitOptions,
   employmentTypeOptions,
   genderOptions,
   workStatusOptions,
@@ -30,6 +22,7 @@ import dayjs from 'dayjs';
 import BatchDelete from '#/views/utils/delete/BatchDelete.vue'
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { activeEmp, fetchHumanList, inactiveEmp, batchDeleteHuman} from '#/api/human/human';
+import {fetchMaterialInfo, submitMaterialInfo} from '#/api/purchase/material';
 import { mapEnumValue } from '#/api/utils/format';
 import ExtraDrawer from '#/views/human/info/drawer.vue';
 import FileUploader from '#/views/utils/upload/FileUploader.vue';
@@ -44,71 +37,65 @@ const handleCheckboxChange = ({ records }: { records: HumanInfo[] }) => {
   selectedItems.value = records
 }
 
-const formOptions: VbenFormProps = {
-  // 默认收起
-  collapsed: true,
-  fieldMappingTime: [['date', ['start', 'end']]],
-  schema: [
-    {
-      component: 'Input',
-      defaultValue: '',
-      fieldName: 'cnName',
-      label: '姓名',
-    },
-    {
-      component: 'Select',
-      componentProps: {
-        allowClear: true,
-        options: departmentOptions,
-        placeholder: '请选择',
-      },
-      fieldName: 'dept',
-      label: '部门',
-    },
-    {
-      component: 'Select',
-      fieldName: 'sex',
-      label: '性别',
-      componentProps: {
-        allowClear: true,
-        options: genderOptions,
-        placeholder: '请选择',
-      },
-    },
-    {
-      component: 'Select',
-      fieldName: 'employeeType',
-      label: '用工性质',
-      componentProps: {
-        allowClear: true,
-        options: employmentTypeOptions,
-        placeholder: '请选择',
-      },
-    },
-    {
-      component: 'Select',
-      fieldName: 'isWork',
-      label: '在职状态',
-      componentProps: {
-        allowClear: true,
-        options: workStatusOptions,
-        placeholder: '请选择',
-      },
-    },
-    // {
-    //   component: 'DatePicker',
-    //   defaultValue: [dayjs().subtract(7, 'days'), dayjs()],
-    //   fieldName: 'enterDate',
-    //   label: '入厂时间',
-    // },
-  ],
-  // 控制表单是否显示折叠按钮
-  showCollapseButton: true,
-  // 是否在字段值改变时提交表单
-  submitOnChange: false,
-  // 按下回车时是否提交表单
-  submitOnEnter: true,
-};
+// const formOptions: VbenFormProps = {
+//   // 默认收起
+//   collapsed: true,
+//   fieldMappingTime: [['date', ['start', 'end']]],
+//   schema: [
+//     {
+//       component: 'Input',
+//       defaultValue: '',
+//       fieldName: 'cnName',
+//       label: '姓名',
+//     },
+//     {
+//       component: 'Select',
+//       componentProps: {
+//         allowClear: true,
+//         options: departmentOptions,
+//         placeholder: '请选择',
+//       },
+//       fieldName: 'dept',
+//       label: '部门',
+//     },
+//     {
+//       component: 'Select',
+//       fieldName: 'sex',
+//       label: '性别',
+//       componentProps: {
+//         allowClear: true,
+//         options: genderOptions,
+//         placeholder: '请选择',
+//       },
+//     },
+//     {
+//       component: 'Select',
+//       fieldName: 'employeeType',
+//       label: '用工性质',
+//       componentProps: {
+//         allowClear: true,
+//         options: employmentTypeOptions,
+//         placeholder: '请选择',
+//       },
+//     },
+//     {
+//       component: 'Select',
+//       fieldName: 'isWork',
+//       label: '在职状态',
+//       componentProps: {
+//         allowClear: true,
+//         options: workStatusOptions,
+//         placeholder: '请选择',
+//       },
+//     },
+//   ],
+//   // 控制表单是否显示折叠按钮
+//   showCollapseButton: true,
+//   // 是否在字段值改变时提交表单
+//   submitOnChange: false,
+//   // 按下回车时是否提交表单
+//   submitOnEnter: true,
+// };
 const deptList = ref<{ cnt: number; dept: string }[]>([]);
 const gridOptions: VxeGridProps<HumanInfo> = {
   checkboxConfig: {
@@ -117,115 +104,123 @@ const gridOptions: VxeGridProps<HumanInfo> = {
     checkField: 'selected'
   },
   columns: [
-    { type: 'checkbox', width: 30 },
-    {
-      title: '序号',
-      type: 'seq',
-      width: 50,
-    },
-    // {
-    //   field: 'id',
-    //   title: '工号',
-    //   width: 80,
-    // },
-    // {
-    //   field: 'attendanceId',
-    //   title: '考勤号',
-    //   width: 80,
-    // },
-    {
-      field: 'cnName',
-      title: '姓名',
-      width: 100,
-    },
-    {
-      field: 'sex',
-      title: '性别',
-      formatter: ({ cellValue }) => mapEnumValue(genderOptions, cellValue),
-      width: 80,
-    },
-    {
-      field: 'dept',
-      title: '部门',
-      sortable: true,
-      width: 80,
-      formatter: ({ cellValue }) => mapEnumValue(departmentOptions, cellValue),
-    },
-    {
-      field: 'title',
-      title: '职务',
-      width: 120,
-    },
-    {
-      field: 'employeeType',
-      title: '用工性质',
-      formatter: ({ cellValue }) =>
-        mapEnumValue(employmentTypeOptions, cellValue),
-      width: 120,
-    },
-    {
-      field: 'isWork',
-      title: '在职状态',
-      width: 80,
-      formatter: ({ cellValue }) => mapEnumValue(workStatusOptions, cellValue),
-    },
-    {
-      field: 'idNbr',
-      title: '身份证号',
-      width: 180,
-    },
-    {
-      field: 'edu',
-      title: '学历',
-      formatter: ({ cellValue }) => mapEnumValue(educationOptions, cellValue),
-      width: 100,
-    },
-    {
-      field: 'nativePlace',
-      title: '籍贯',
-      width: 120,
-    },
-    {
-      field: 'ethnicGroup',
-      title: '民族',
-      width: 100,
-    },
-    {
-      field: 'enterDate',
-      title: '入厂日期',
-      // formatter: ({ cellValue }) =>
-      //   dayjs(cellValue).format('YYYY-MM-DD'),
-      width: 100,
-    },
-    {
-      field: 'phone',
-      title: '联系方式',
-      width: 120,
-    },
-    {
-      field: 'address',
-      title: '家庭住址',
-      width: 200,
-    },
-    {
-      field: 'birthday',
-      title: '出生日期',
-      formatter: ({ cellValue }) => dayjs(cellValue).format('YYYY-MM-DD'),
-      width: 140,
-    },
-    {
-      field: 'dorm',
-      title: '宿舍',
-      width: 60,
-    },
-    {
-      field: 'action',
-      fixed: 'right',
-      slots: { default: 'action' },
-      title: '操作',
-      width: 255,
-    },
-  ],
+  { type: 'checkbox', width: 30 },
+  {
+    title: '序号',
+    type: 'seq',
+    width: 50,
+  },
+  {
+    field: 'materialId',
+    title: '物料编号',
+    width: 120,
+    sortable: true
+  },
+  {
+    field: 'materialName',
+    title: '品名规格',
+    width: 200,
+  },
+  {
+    field: 'priceConfirmDate',
+    title: '单价确定时间',
+    formatter: ({ cellValue }) => dayjs(cellValue).format('YYYY-MM-DD HH:mm:ss'),
+    width: 150,
+    sortable: true
+  },
+  {
+    field: 'unit',
+    title: '单位',
+    formatter: ({ cellValue }) => mapEnumValue(unitOptions, cellValue),
+    width: 80,
+  },
+  {
+    field: 'unitPriceFree',
+    title: '单价(不含税)',
+    width: 120,
+    formatter: ({ cellValue }) => cellValue ? `¥${Number(cellValue).toFixed(4)}` : '-'
+  },
+  {
+    field: 'unitPriceDuty',
+    title: '单价(含税)',
+    width: 120,
+    formatter: ({ cellValue }) => cellValue ? `¥${Number(cellValue).toFixed(4)}` : '-'
+  },
+  {
+    field: 'unitPrice',
+    title: '原币单价',
+    width: 120,
+    formatter: ({ cellValue }) => cellValue ? Number(cellValue).toFixed(4) : '-'
+  },
+  {
+    field: 'currency',
+    title: '币种',
+    formatter: ({ cellValue }) => mapEnumValue(currencyOptions, cellValue),
+    width: 80,
+  },
+  {
+    field: 'supplier',
+    title: '供应商',
+    width: 120,
+  },
+  {
+    field: 'customer',
+    title: '客户',
+    width: 120,
+  },
+  {
+    field: 'materialType',
+    title: '原料类型',
+    width: 120,
+  },
+  {
+    field: 'rawType',
+    title: '原料类型',
+    width: 120,
+  },
+  {
+    field: 'unitWeightCustoms',
+    title: '海关单重',
+    width: 100,
+    formatter: ({ cellValue }) => cellValue ? Number(cellValue).toFixed(4) : '-'
+  },
+  {
+    field: 'remark',
+    title: '备注',
+    width: 150,
+  },
+  {
+    field: 'createBy',
+    title: '创建人',
+    width: 100,
+  },
+  {
+    field: 'updateBy',
+    title: '更新人',
+    width: 100,
+  },
+  {
+    field: 'createTime',
+    title: '创建时间',
+    formatter: ({ cellValue }) => dayjs(cellValue).format('YYYY-MM-DD HH:mm:ss'),
+    width: 150,
+    sortable: true
+  },
+  {
+    field: 'updateTime',
+    title: '更新时间',
+    formatter: ({ cellValue }) => dayjs(cellValue).format('YYYY-MM-DD HH:mm:ss'),
+    width: 150,
+    sortable: true
+  },
+  {
+    field: 'action',
+    fixed: 'right',
+    slots: { default: 'action' },
+    title: '操作',
+    width: 200,
+  },
+],
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues) => {
@@ -265,7 +260,7 @@ const gridOptions: VxeGridProps<HumanInfo> = {
 };
 // 人事信息列表
 const [Grid, gridApi] = useVbenVxeGrid({
-  formOptions,
+  // formOptions,
   gridOptions,
 });
 
@@ -355,7 +350,7 @@ const deleteHuman = async (ids: Array<string | number>) => {
 <template>
   <Page auto-content-height>
     <Drawer />
-    <Overview :dept-list="deptList" />
+    <!-- <Overview :dept-list="deptList" /> -->
     <Grid
       @checkbox-change="handleCheckboxChange"
       @select-change="handleCheckboxChange"
@@ -365,8 +360,8 @@ const deleteHuman = async (ids: Array<string | number>) => {
       <template #toolbar-actions>
         <div style="display: flex;width:100%;">
         <FileUploader
-          upload-url="/human/import"
-          button-text="上传员工信息"
+          upload-url="/material/import"
+          button-text="批量上传物料信息"
           :multiple="true"
         />
         <ElButton type = "primary"
@@ -377,8 +372,8 @@ const deleteHuman = async (ids: Array<string | number>) => {
           <BatchDelete
             :selected-items="selectedItems"
             :api-function="batchDeleteHuman"
-            success-message="员工删除成功"
-            error-message="员工删除失败"
+            success-message="删除成功"
+            error-message="删除失败"
             @delete-success="gridApi.reload()"
           />
         </div>

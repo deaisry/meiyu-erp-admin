@@ -1,12 +1,17 @@
 export enum DepartmentEnum {
-  BusinessDepartment = '2', // 业务部
-  EngineeringDepartment = '8', // 工程部
-  FinanceDepartment = '7', // 财务部
   GeneralOffice = '1', // 总经办
-  InjectionMoldingDepartment = '6', // 注塑部
+  BusinessDepartment = '2', // 业务部
   MoldDepartment = '3', // 模具部
-  ProcessingDepartment = '5', // 加工部
   ProcurementDepartment = '4', // 采购部
+  ProcessingDepartment = '5', // 加工部
+  InjectionMoldingDepartment = '6', // 注塑部
+  FinanceDepartment = '7', // 财务部
+  EngineeringDepartment = '8', // 工程部
+  WarehouseDepartment = '9', // 仓储部
+  QualityDepartment = '10', // 品质部
+  PIEDepartment = '11', // PIE
+  MaterialsDepartment = '12', // 资材部
+  ManagementDepartment = '13', // 管理部
 }
 
 export enum GenderEnum {
@@ -30,12 +35,14 @@ export enum MarryStatusEnum {
 }
 
 export enum EducationEnum {
-  High = '3',
-  Junior = '2',
-  Master = '5',
-  Primary = '1',
-  Undergraduate = '4',
+  PrimarySchool = '0', // 小学
+  JuniorHighSchool = '1', // 初中
+  HighSchool = '2', // 高中/中专
+  VocationalCollege = '3', // 大专
+  Undergraduate = '4', // 本科
+  Master = '5', // 硕士
 }
+
 
 export enum MeetingTypeEunm {
   engineer = '5',
@@ -144,6 +151,11 @@ export const departmentOptions = createEnumOptions(DepartmentEnum, {
   InjectionMoldingDepartment: '注塑部',
   FinanceDepartment: '财务部',
   EngineeringDepartment: '工程部',
+  WarehouseDepartment: '仓储部',
+  QualityDepartment: '品质部',
+  PIEDepartment: 'PIE',
+  MaterialsDepartment: '资材部',
+  ManagementDepartment: '管理部',
 });
 export const itemRelaTypeOptions = createEnumOptions(ItemRelaTypeEnum, {
   nothing: '无关联',
@@ -171,9 +183,10 @@ export const workStatusOptions = createEnumOptions(WorkStatusEnum, {
 
 // 学历
 export const educationOptions = createEnumOptions(EducationEnum, {
-  Primary: '小学',
-  Junior: '初中',
-  High: '高中',
+  PrimarySchool: '小学',
+  JuniorHighSchool: '初中',
+  HighSchool: '高中/中专',
+  VocationalCollege: '大专',
   Undergraduate: '本科',
   Master: '硕士',
 });
@@ -214,6 +227,32 @@ export const weekdayOptions = createEnumOptions(WeekdayEnum, {
   Friday: '星期五',
   Saturday: '星期六',
   Sunday: '星期日',
+});
+
+// 单位枚举
+export enum UnitEnum {
+  PCS = '1',
+  KG = '2',
+  TON = '3',
+}
+
+export const unitOptions = createEnumOptions(UnitEnum, {
+  PCS: 'PCS',
+  KG: 'KG',
+  TON: 'TON',
+});
+
+// 币种枚举
+export enum CurrencyEnum {
+  RMB = '1',
+  USD = '2',
+  HKD = '3',
+}
+
+export const currencyOptions = createEnumOptions(CurrencyEnum, {
+  RMB: '人民币',
+  USD: '美元',
+  HKD: '港币',
 });
 
 export const departmentNameMap = Object.fromEntries(

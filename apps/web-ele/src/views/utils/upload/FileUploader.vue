@@ -206,23 +206,22 @@ watch(
     :on-exceed="handleExceed"
     :auto-upload="false"
     :http-request="customUpload"
-    class="uploader"
   >
     <template #trigger>
-      <ElButton>
-        {{ props.buttonText || '上传员工信息' }}
+      <ElButton type="primary">
+        {{ props.buttonText || '上传信息' }}
+      </ElButton>
+      <ElButton
+          class="ml-3"
+          v-if="hasFiles"
+          type="success"
+          :disabled="isUploading"
+          :loading="isUploading"
+          @click="handleManualUpload"
+        >
+        {{ props.uploadButtonText || '开始上传' }}
       </ElButton>
     </template>
-    <ElButton
-      class="ml-3"
-      v-if="hasFiles"
-      type="success"
-      :disabled="isUploading"
-      :loading="isUploading"
-      @click="handleManualUpload"
-    >
-      {{ props.uploadButtonText || '开始上传' }}
-    </ElButton>
   </ElUpload>
 
   <!-- 文件预览对话框 -->
@@ -243,9 +242,3 @@ watch(
     <div v-else>加载预览失败</div>
   </ElDialog>
 </template>
-
-<style lang="css">
-.uploader {
-  /* padding: 8px; */
-}
-</style>

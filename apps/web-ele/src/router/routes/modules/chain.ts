@@ -1,23 +1,4 @@
-/*
- * @Author: deaisry
- * @Date: 2025-05-20 11:15:35
- * @LastEditors: e deaisry@163.com
- * @LastEditTime: 2025-05-20 11:39:12
- * @FilePath: \vue-vben-admin\apps\web-ele\src\router\routes\modules\chain.ts
- * @Description:
- *
- * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
- */
-/*
- * @Author: deaisry
- * @Date: 2025-05-20 11:15:35
- * @LastEditors: e deaisry@163.com
- * @LastEditTime: 2025-05-20 11:22:08
- * @FilePath: \vue-vben-admin\apps\web-ele\src\router\routes\modules\chain.ts
- * @Description:
- *
- * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
- */
+
 import type { RouteRecordRaw } from 'vue-router';
 import { $t } from '#/locales';
 

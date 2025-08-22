@@ -1,18 +1,13 @@
 <script lang="ts" setup>
-import type { HumanInfo } from '@vben/types';
+import type { AttendanceInfo } from '@vben/types';
 
 import type { VbenFormProps } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { ref } from 'vue';
-
 import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
 import {
   departmentOptions,
-  employmentTypeOptions,
-  genderOptions,
   weekdayOptions,
-  workStatusOptions,
 } from '@vben/types';
 
 import { Button, message } from 'ant-design-vue';
@@ -20,14 +15,12 @@ import dayjs from 'dayjs';
 import { ElButton } from 'element-plus';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { fetchAttendanceList } from '#/api/human/attendance';
-import { activeEmp, inactiveEmp } from '#/api/human/human';
+import { fetchAttendanceList,deleteAttendaceInfo} from '#/api/human/attendance';
 import { mapEnumValue } from '#/api/utils/format';
 import ExtraDrawer from '#/views/human/info/drawer.vue';
 import FileUploader from '#/views/utils/upload/FileUploader.vue';
 
 import ExtraFormModal from './modal.vue';
-import Overview from './overview.vue';
 
 const formOptions: VbenFormProps = {
   // 默认收起
@@ -50,52 +43,15 @@ const formOptions: VbenFormProps = {
       fieldName: 'dept',
       label: '部门',
     },
-    {
-      component: 'Select',
-      fieldName: 'sex',
-      label: '性别',
-      componentProps: {
-        allowClear: true,
-        options: genderOptions,
-        placeholder: '请选择',
-      },
-    },
-    {
-      component: 'Select',
-      fieldName: 'employeeType',
-      label: '用工性质',
-      componentProps: {
-        allowClear: true,
-        options: employmentTypeOptions,
-        placeholder: '请选择',
-      },
-    },
-    {
-      component: 'Select',
-      fieldName: 'isWork',
-      label: '在职状态',
-      componentProps: {
-        allowClear: true,
-        options: workStatusOptions,
-        placeholder: '请选择',
-      },
-    },
-    // {
-    //   component: 'DatePicker',
-    //   defaultValue: [dayjs().subtract(7, 'days'), dayjs()],
-    //   fieldName: 'enterDate',
-    //   label: '入厂时间',
-    // },
   ],
   // 控制表单是否显示折叠按钮
-  showCollapseButton: true,
+  showCollapseButton: false,
   // 是否在字段值改变时提交表单
   submitOnChange: false,
   // 按下回车时是否提交表单
   submitOnEnter: true,
 };
-const deptList = ref<{ cnt: number; dept: string }[]>([]);
-const gridOptions: VxeGridProps<HumanInfo> = {
+const gridOptions: VxeGridProps<AttendanceInfo> = {
   checkboxConfig: {
     highlight: true,
     labelField: 'name',
@@ -107,15 +63,27 @@ const gridOptions: VxeGridProps<HumanInfo> = {
       type: 'seq',
       width: 50,
     },
+    // {
+    //   field: 'id',
+    //   title: '工号',
+    //   width: 80,
+    // },
+    // {
+    //   field: 'attendanceId',
+    //   title: '考勤号',
+    //   width: 80,
+    // },
     {
-      field: 'id',
-      title: '工号',
-      width: 80,
+      field: 'dateTime',
+      title: '日期',
+      width: '140',
+      formatter: ({ cellValue }) => dayjs(cellValue).format('YYYY-MM-DD'),
     },
     {
-      field: 'attendanceId',
-      title: '考勤号',
+      field: 'dayTime',
+      title: '星期',
       width: 80,
+      formatter: ({ cellValue }) => mapEnumValue(weekdayOptions, cellValue),
     },
     {
       field: 'dept',
@@ -135,23 +103,11 @@ const gridOptions: VxeGridProps<HumanInfo> = {
       width: 80,
       formatter: ({ cellValue }) => (cellValue === '1' ? '是' : '否'),
     },
-    {
-      field: 'dateTime',
-      title: '日期',
-      width: '140',
-      formatter: ({ cellValue }) => dayjs(cellValue).format('YYYY-MM-DD'),
-    },
-    {
-      field: 'dayTime',
-      title: '星期',
-      width: 80,
-      formatter: ({ cellValue }) => mapEnumValue(weekdayOptions, cellValue),
-    },
-    {
-      field: 'classType',
-      title: '班别',
-      width: 80,
-    },
+    // {
+    //   field: 'classType',
+    //   title: '班别',
+    //   width: 80,
+    // },
     {
       field: 'checkTimes',
       title: '打卡次数',
@@ -175,6 +131,16 @@ const gridOptions: VxeGridProps<HumanInfo> = {
     {
       field: 'checkFour',
       title: '第四次打卡时间',
+      width: 160,
+    },
+    {
+      field: 'checkFive',
+      title: '第五次打卡时间',
+      width: 160,
+    },
+    {
+      field: 'checkSix',
+      title: '第六次打卡时间',
       width: 160,
     },
     {
@@ -238,17 +204,8 @@ const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: ExtraFormModal,
 });
 
-// 打开详情弹窗
-function openModal(row: HumanInfo) {
-  formModalApi
-    .setData({
-      ...row,
-    })
-    .open();
-}
-
 // 打开编辑抽屉
-function open(row: HumanInfo) {
+function open(row: AttendanceInfo) {
   drawerApi
     .setData({
       ...row, // 传递整个行数据
@@ -256,10 +213,10 @@ function open(row: HumanInfo) {
     .open();
 }
 
-// 启用职工
-function active(row: HumanInfo) {
+// 删除考勤信息
+function onDelete(row: AttendanceInfo) {
   try {
-    activeEmp(row);
+    deleteAttendaceInfo(row);
     // console.log(response);
     message.info(`职工${row.cnName}启用成功`);
     gridApi.reload();
@@ -267,47 +224,41 @@ function active(row: HumanInfo) {
     message.error(`职工${row.cnName}启用失败`);
   }
 }
-
-// 停用职工
-function inactive(row: HumanInfo) {
-  try {
-    inactiveEmp(row);
-    // console.log(response);
-    message.info(`职工${row.cnName}停用成功`);
-    gridApi.reload();
-  } catch {
-    message.error(`职工${row.cnName}停用失败`);
-  }
+// Download Attendance
+function openDA(){
+  formModalApi.open();
 }
 
-const handleSuccess = (file, response) => {
-  debugger;
-  message.info('上传成功');
-  console.log('上传成功:', file.name, response);
-};
-
-const handleError = (file, error) => {
-  message.error('上传失败');
-  console.error('上传失败:', file.name, error);
-};
 </script>
 
 <template>
   <Page auto-content-height>
     <Drawer />
-    <Overview :dept-list="deptList" />
     <Grid>
       <template #toolbar-actions>
-        <FileUploader
-          upload-url="/human/import"
-          button-text="上传考勤信息"
-          :multiple="true"
-        />
-        <ElButton>批量删除</ElButton>
+        <div style="display: flex; width: 100%;">
+          <FileUploader
+            upload-url="/attendanceInfo/import"
+            button-text="上传考勤信息"
+            :multiple="true"
+          />
+          <ElButton
+            type="danger"
+            style="margin-left: auto;"
+          >
+            批量删除
+          </ElButton>
+          <ElButton
+            type="primary"
+            @click="openDA"
+          >
+            下载考勤结果
+          </ElButton>
+        </div>
       </template>
       <template #action="{ row }">
-        <Button type="link" @click="open(row)"> 编辑 </Button>
-        <Button type="link" @click="openModal(row)">删除</Button>
+        <Button type="link" @click="open(row)">编辑</Button>
+        <Button type="link" @click="onDelete(row)">删除</Button>
         <FormModal />
       </template>
     </Grid>
