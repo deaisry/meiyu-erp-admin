@@ -8,6 +8,7 @@
  *
  * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
  */
+// eslint-disable-next-line no-restricted-imports
 import type { BaseResponse, PaginationResult } from '@vben/types';
 
 interface PaginationResponse<T> extends BaseResponse {

@@ -1,17 +1,17 @@
 export enum DepartmentEnum {
-  GeneralOffice = '1', // 总经办
   BusinessDepartment = '2', // 业务部
-  MoldDepartment = '3', // 模具部
-  ProcurementDepartment = '4', // 采购部
-  ProcessingDepartment = '5', // 加工部
-  InjectionMoldingDepartment = '6', // 注塑部
-  FinanceDepartment = '7', // 财务部
   EngineeringDepartment = '8', // 工程部
-  WarehouseDepartment = '9', // 仓储部
-  QualityDepartment = '10', // 品质部
-  PIEDepartment = '11', // PIE
-  MaterialsDepartment = '12', // 资材部
+  FinanceDepartment = '7', // 财务部
+  GeneralOffice = '1', // 总经办
+  InjectionMoldingDepartment = '6', // 注塑部
   ManagementDepartment = '13', // 管理部
+  MaterialsDepartment = '12', // 资材部
+  MoldDepartment = '3', // 模具部
+  PIEDepartment = '11', // PIE
+  ProcessingDepartment = '5', // 加工部
+  ProcurementDepartment = '4', // 采购部
+  QualityDepartment = '10', // 品质部
+  WarehouseDepartment = '9', // 仓储部
 }
 
 export enum GenderEnum {
@@ -35,14 +35,13 @@ export enum MarryStatusEnum {
 }
 
 export enum EducationEnum {
-  PrimarySchool = '0', // 小学
-  JuniorHighSchool = '1', // 初中
   HighSchool = '2', // 高中/中专
-  VocationalCollege = '3', // 大专
-  Undergraduate = '4', // 本科
+  JuniorHighSchool = '1', // 初中
   Master = '5', // 硕士
+  PrimarySchool = '0', // 小学
+  Undergraduate = '4', // 本科
+  VocationalCollege = '3', // 大专
 }
-
 
 export enum MeetingTypeEunm {
   engineer = '5',
@@ -231,8 +230,8 @@ export const weekdayOptions = createEnumOptions(WeekdayEnum, {
 
 // 单位枚举
 export enum UnitEnum {
-  PCS = '1',
   KG = '2',
+  PCS = '1',
   TON = '3',
 }
 
@@ -244,15 +243,40 @@ export const unitOptions = createEnumOptions(UnitEnum, {
 
 // 币种枚举
 export enum CurrencyEnum {
+  HKD = '3',
   RMB = '1',
   USD = '2',
-  HKD = '3',
 }
 
 export const currencyOptions = createEnumOptions(CurrencyEnum, {
   RMB: '人民币',
   USD: '美元',
   HKD: '港币',
+});
+
+// 物料类型枚举
+export enum MaterialTypeEnum {
+  COLOR_POWDER = 'G',
+  FINISHED_PRODUCT = 'A',
+  HARDWARE = 'D',
+  LABEL = 'P',
+  LAMP_SHADE = 'H',
+  PACKING_MATERIAL = 'E',
+  RUBBER = 'C',
+  SCRAP = 'F',
+  SEMI_FINISHED = 'B',
+}
+
+export const materialTypeOptions = createEnumOptions(MaterialTypeEnum, {
+  FINISHED_PRODUCT: '成品',
+  SEMI_FINISHED: '半成品',
+  RUBBER: '胶料',
+  HARDWARE: '五金',
+  PACKING_MATERIAL: '包材',
+  SCRAP: '水口及五金废料',
+  COLOR_POWDER: '色粉',
+  LAMP_SHADE: '灯罩',
+  LABEL: '标签',
 });
 
 export const departmentNameMap = Object.fromEntries(
