@@ -115,6 +115,7 @@ const [FirstForm] = useVbenForm({
       label: '与会人员',
       componentProps: {
         ...participantsProps,
+        placeholder:'请选择与会人员'
       },
       // rules: 'required',
     },

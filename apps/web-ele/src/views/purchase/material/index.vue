@@ -21,18 +21,11 @@ import ExtraDrawer from '#/views/human/info/drawer.vue';
 import BatchDelete from '#/views/utils/delete/BatchDelete.vue';
 import FileUploader from '#/views/utils/upload/FileUploader.vue';
 
-import ExtraFormModal from './modal.vue';
+import DetailModal from './DetailModal.vue';
+import AddMaterialFormModal from './AddModal.vue';
 
 const selectedItems = ref<MaterialPriceInfo[]>([]);
 console.log('[PricePage] 初始化选中项:', selectedItems.value);
-const handleCheckboxChange = ({
-  records,
-}: {
-  records: MaterialPriceInfo[];
-}) => {
-  console.log('[PricePage] 接收到选择变化事件:');
-  selectedItems.value = records;
-};
 
 const formOptions: VbenFormProps = {
   // 默认收起
@@ -44,8 +37,8 @@ const formOptions: VbenFormProps = {
       defaultValue: '',
       fieldName: 'materialId',
       label: '物料编号',
-      componentProps: {
-        style: { width: '200px' },
+      componentProps:{
+        width:300,
       },
     },
     {
@@ -53,18 +46,12 @@ const formOptions: VbenFormProps = {
       defaultValue: '',
       fieldName: 'supplier',
       label: '供应商',
-      componentProps: {
-        style: { width: '200px' },
-      },
     },
     {
       component: 'Input',
       defaultValue: '',
       fieldName: 'customer',
       label: '客户',
-      componentProps: {
-        style: { width: '200px' },
-      },
     },
     {
       component: 'Select',
@@ -72,7 +59,6 @@ const formOptions: VbenFormProps = {
         allowClear: true,
         options: materialTypeOptions,
         placeholder: '请选择',
-        style: { width: '200px' },
       },
       fieldName: 'materialType',
       label: '物料类型',
@@ -277,8 +263,14 @@ const [Drawer, drawerApi] = useVbenDrawer({
 
 // 详情弹窗
 const [FormModal, formModalApi] = useVbenModal({
-  connectedComponent: ExtraFormModal,
+  connectedComponent: DetailModal,
+  class:'detail-modal'
 });
+
+const [AddFormModal,addModalApi] = useVbenModal({
+  connectedComponent:AddMaterialFormModal,
+  class:'add-modal'
+})
 
 // 打开详情弹窗
 function openModal(row: MaterialPriceInfo) {
@@ -287,6 +279,10 @@ function openModal(row: MaterialPriceInfo) {
       ...row,
     })
     .open();
+}
+
+function AddModal(){
+  addModalApi.open()
 }
 
 // 打开编辑抽屉
@@ -298,54 +294,6 @@ function open(row: MaterialPriceInfo) {
     .open();
 }
 
-// 启用职工
-function active(row: MaterialPriceInfo) {
-  // try {
-  //   activeEmp(row);
-  //   // console.log(response);
-  //   message.info(`职工${row.cnName}启用成功`);
-  //   gridApi.reload();
-  // } catch {
-  //   message.error(`职工${row.cnName}启用失败`);
-  // }
-}
-
-// 停用职工
-function inactive(row: MaterialPriceInfo) {
-  // try {
-  //   inactiveEmp(row);
-  //   // console.log(response);
-  //   message.info(`职工${row.cnName}停用成功`);
-  //   gridApi.reload();
-  // } catch {
-  //   message.error(`职工${row.cnName}停用失败`);
-  // }
-}
-
-// const handleSuccess = (file, response) => {
-//   debugger;
-//   message.info('上传成功');
-//   console.log('上传成功:', file.name, response);
-// };
-
-// const handleError = (file, error) => {
-//   message.error('上传失败');
-//   console.error('上传失败:', file.name, error);
-// };
-
-// const deleteHuman = async (ids: Array<number | string>) => {
-//   try {
-//     debugger;
-//     await batchDeleteHuman(ids);
-//     message.success(`成功删除 ${ids.length} 条记录`);
-//     gridApi.reload();
-//     return true;
-//   } catch (error) {
-//     message.error('删除操作失败');
-//     console.error('删除错误:', error);
-//     throw error;
-//   }
-// };
 </script>
 
 <template>
@@ -360,7 +308,8 @@ function inactive(row: MaterialPriceInfo) {
             button-text="批量上传物料信息"
             :multiple="true"
           />
-          <ElButton type="primary" style="margin-left: auto"> 新增 </ElButton>
+          <ElButton type="primary" style="margin-left: auto" @click="AddModal()"> 新增 </ElButton>
+          <AddFormModal/>
           <BatchDelete
             :selected-items="selectedItems"
             :api-function="batchDeleteHuman"
@@ -372,16 +321,6 @@ function inactive(row: MaterialPriceInfo) {
       </template>
       <template #action="{ row }">
         <Button type="link" @click="open(row)"> 编辑 </Button>
-        <Button type="link" :disabled="row.isWork === '1'" @click="active(row)">
-          启用
-        </Button>
-        <Button
-          type="link"
-          :disabled="row.isWork === '0'"
-          @click="inactive(row)"
-        >
-          停用
-        </Button>
         <Button type="link" @click="openModal(row)">详情</Button>
         <FormModal />
       </template>
@@ -391,7 +330,23 @@ function inactive(row: MaterialPriceInfo) {
 <style lang="css">
 .inline-form-items {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px; /* 从16px缩小到8px，减少项目间距 */
+  row-gap: 12px; /* 可以单独设置行间距，保持适当的垂直间隔 */
+  padding: 0 8px; /* 减少内边距 */
+  box-sizing: border-box;
 }
+.detail-modal {
+  /* 设置最小宽度为1000px，确保内容有足够展示空间 */
+  min-width: 900px;
+  /* 增加最大宽度限制，避免过宽 */
+  max-width: 1200px;
+}
+.add-modal {
+  /* 设置最小宽度为1000px，确保内容有足够展示空间 */
+  min-width: 900px;
+  /* 增加最大宽度限制，避免过宽 */
+  max-width: 1200px;
+}
+
 </style>

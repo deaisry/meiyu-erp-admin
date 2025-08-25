@@ -9,6 +9,7 @@
  * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
  */
 import type {
+  BaseResponse,
   BaseResponseData,
   MeetingInfo,
   PaginationParams,
@@ -51,7 +52,7 @@ export async function submitMeetingInfo(data: MeetingInfo) {
     processedData.participants = '';
   }
   debugger;
-  const response = await requestClient.post<BaseResponseData>(
+  const response = await requestClient.post<BaseResponse>(
     '/meetingInfo/insertOrUpdate',
     processedData,
   );
@@ -60,7 +61,7 @@ export async function submitMeetingInfo(data: MeetingInfo) {
 
 export async function fetchMeetingDetail(data: string) {
   const param: MeetingInfo = { meetingId: data };
-  const response = await requestClient.post<BaseResponseData>(
+  const response = await requestClient.post<BaseResponse>(
     '/meetingInfo/findById',
     param,
   );

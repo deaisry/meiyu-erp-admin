@@ -1,117 +1,72 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
+import { useVbenModal, type VbenFormProps } from '@vben/common-ui';
+const formRef = ref();
 
-import { Page } from '@vben/common-ui';
+// 表单配置 schema，可复用
+const formOptions: VbenFormProps = {
+  schema: [
+    {
+      component: 'Input',
+      fieldName: 'materialId',
+      label: '物料编号',
+      componentProps: { placeholder: '请输入物料编号' },
+    },
+    {
+      component: 'Input',
+      fieldName: 'supplier',
+      label: '供应商',
+      componentProps: { placeholder: '请输入供应商' },
+    },
+    {
+      component: 'Input',
+      fieldName: 'customer',
+      label: '客户',
+      componentProps: { placeholder: '请输入客户' },
+    },
+    {
+      component: 'Select',
+      fieldName: 'materialType',
+      label: '物料类型',
+      componentProps: {
+        options: [
+          { label: '原材料', value: 'raw' },
+          { label: '半成品', value: 'semi' },
+          { label: '成品', value: 'finished' },
+        ],
+        placeholder: '请选择物料类型',
+        allowClear: true,
+      },
+    },
+  ],
+};
 
-import {
-  ElButton,
-  ElCard,
-  ElMessage,
-  ElNotification,
-  ElSegmented,
-  ElSpace,
-  ElTable,
-} from 'element-plus';
+const data = ref<Record<string, any>>({});
 
-type NotificationType = 'error' | 'info' | 'success' | 'warning';
+const [Modal, modalApi] = useVbenModal({
+  onCancel() {
+    modalApi.close();
+  },
+  async onConfirm() {
+    // 获取表单值
+    const values = await formRef.value?.getValues();
+    console.info('提交表单：', values);
 
-function info() {
-  ElMessage.info('How many roads must a man walk down');
-}
-
-function error() {
-  ElMessage.error({
-    duration: 2500,
-    message: 'Once upon a time you dressed so fine',
-  });
-}
-
-function warning() {
-  ElMessage.warning('How many roads must a man walk down');
-}
-function success() {
-  ElMessage.success(
-    'Cause you walked hand in hand With another man in my place',
-  );
-}
-
-function notify(type: NotificationType) {
-  ElNotification({
-    duration: 2500,
-    message: '说点啥呢',
-    type,
-  });
-}
-const tableData = [
-  { prop1: '1', prop2: 'A' },
-  { prop1: '2', prop2: 'B' },
-  { prop1: '3', prop2: 'C' },
-  { prop1: '4', prop2: 'D' },
-  { prop1: '5', prop2: 'E' },
-  { prop1: '6', prop2: 'F' },
-];
-
-const segmentedValue = ref('Mon');
-
-const segmentedOptions = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    // TODO: 调用后端接口
+    modalApi.close();
+  },
+  onOpenChange(isOpen: boolean) {
+    if (isOpen) {
+      data.value = modalApi.getData<Record<string, any>>();
+      // 赋初始值给表单
+      formRef.value?.setValues(data.value || {});
+    }
+  },
+});
 </script>
 
 <template>
-  <Page
-    description="支持多语言，主题功能集成切换等"
-    title="Element Plus组件使用演示"
-  >
-    <div class="flex flex-wrap gap-5">
-      <ElCard class="mb-5 w-auto">
-        <template #header> 按钮 </template>
-        <ElSpace>
-          <ElButton text>Text</ElButton>
-          <ElButton>Default</ElButton>
-          <ElButton type="primary"> Primary </ElButton>
-          <ElButton type="info"> Info </ElButton>
-          <ElButton type="success"> Success </ElButton>
-          <ElButton type="warning"> Warning </ElButton>
-          <ElButton type="danger"> Error </ElButton>
-        </ElSpace>
-      </ElCard>
-      <ElCard class="mb-5 w-80">
-        <template #header> Message </template>
-        <ElSpace>
-          <ElButton type="info" @click="info"> 信息 </ElButton>
-          <ElButton type="danger" @click="error"> 错误 </ElButton>
-          <ElButton type="warning" @click="warning"> 警告 </ElButton>
-          <ElButton type="success" @click="success"> 成功 </ElButton>
-        </ElSpace>
-      </ElCard>
-      <ElCard class="mb-5 w-80">
-        <template #header> Notification </template>
-        <ElSpace>
-          <ElButton type="info" @click="notify('info')"> 信息 </ElButton>
-          <ElButton type="danger" @click="notify('error')"> 错误 </ElButton>
-          <ElButton type="warning" @click="notify('warning')"> 警告 </ElButton>
-          <ElButton type="success" @click="notify('success')"> 成功 </ElButton>
-        </ElSpace>
-      </ElCard>
-      <ElCard class="mb-5 w-auto">
-        <template #header> Segmented </template>
-        <ElSegmented
-          v-model="segmentedValue"
-          :options="segmentedOptions"
-          size="large"
-        />
-      </ElCard>
-      <ElCard class="mb-5 w-80">
-        <template #header> V-Loading </template>
-        <div class="flex size-72 items-center justify-center" v-loading="true">
-          一些演示的内容
-        </div>
-      </ElCard>
-      <ElCard class="mb-5 w-80">
-        <ElTable :data="tableData" stripe>
-          <ElTable.TableColumn label="测试列1" prop="prop1" />
-          <ElTable.TableColumn label="测试列2" prop="prop2" />
-        </ElTable>
-      </ElCard>
-    </div>
-  </Page>
+  <Modal title="新增 / 编辑数据">
+    <VbenForm ref="formRef" v-bind="formOptions" />
+  </Modal>
 </template>

@@ -14,6 +14,7 @@ export type * from './human/HumanInfo';
 export type * from './item/ItemInfo';
 export type * from './item/ItemRelaInfo';
 export type * from './meeting/MeetingInfo';
+export type * from './supplierChain/supplierChian';
 export type * from './purchase/MaterialPriceInfo';
 export type * from './PageResult';
 export type * from './type/typing';
