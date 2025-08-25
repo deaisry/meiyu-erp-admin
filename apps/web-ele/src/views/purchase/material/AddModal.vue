@@ -1,9 +1,11 @@
 <script lang="ts" setup>
-import { useVbenModal } from '@vben/common-ui';
-import { useVbenForm } from '#/adapter/form';
 import { ref } from 'vue';
+
+import { useVbenModal } from '@vben/common-ui';
 import { currencyOptions, materialTypeOptions } from '@vben/types';
-import RemoteSelect from '#/views/utils/select-view/remoteSelect.vue'
+
+import { useVbenForm } from '#/adapter/form';
+import RemoteSelect from '#/views/utils/select-view/remoteSelect.vue';
 
 // 这里接收父组件传过来的数据（新增一般为空，编辑时可能有默认值）
 const formData = ref<Record<string, any>>({});
@@ -30,7 +32,7 @@ const [MaterialForm, formApi] = useVbenForm({
       },
       fieldName: 'materialType',
       label: '物料类型',
-      rules: 'required'
+      rules: 'required',
     },
     {
       component: 'Input',
@@ -46,19 +48,13 @@ const [MaterialForm, formApi] = useVbenForm({
       componentProps: { placeholder: '请输入供应商' },
     },
     {
-      component: 'Input',
-      fieldName: 'customer',
-      label: '客户',
-      componentProps: { placeholder: '请输入客户' },
-    },
-    {
       component: RemoteSelect,
       fieldName: 'customer',
       label: '客户',
       componentProps: {
         url: '/custBasicInfo/listName',
         labelKey: 'custName',
-        valueKey: 'id',
+        valueKey: 'custId',
         placeholder: '请选择客户',
         optionsCache: false, // 默认已启用
       },
@@ -74,16 +70,16 @@ const [MaterialForm, formApi] = useVbenForm({
       label: '币种',
     },
     {
-      component:'Input',
-      componentProps:{
-        placeholder:"请输入原币单价"
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入原币单价',
       },
-      fieldName:'unitPrice',
-      label:'单价'
+      fieldName: 'unitPrice',
+      label: '单价',
     },
   ],
   wrapperClass: '.add-modal grid-cols-1 md:grid-cols-2 gap-x-6', // 两列，列间有间距
-  submitButtonOptions:{show:false}
+  submitButtonOptions: { show: false },
 });
 
 // 弹窗

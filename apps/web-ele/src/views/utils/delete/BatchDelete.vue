@@ -1,93 +1,89 @@
-<!-- BatchDelete.vue -->
-<script lang="ts" setup generic="T extends { id: string | number }">
-import type { Action } from 'element-plus';
+<script setup lang="ts">
+import { ElButton, ElMessage, ElPopconfirm } from 'element-plus';
 
-import { ref, watch } from 'vue';
+interface Props {
+  /** 单条删除模式：传入行对象 */
+  rowItem?: Record<string, any>;
+  /** 批量删除模式：传入选中项数组 */
+  selectedItems?: any[];
+  /** 删除接口函数 */
+  apiFunction: (ids: number[] | string[]) => Promise<any>;
+  /** 主键字段名 */
+  idKey?: string;
+  /** 按钮文字 */
+  buttonText?: string;
+  /** 删除成功提示 */
+  successMessage?: string;
+  /** 删除失败提示 */
+  errorMessage?: string;
+  /** 按钮类型 */
+  type?: 'danger' | 'default' | 'primary';
+  /** 是否显示二次确认弹窗 */
+  confirm?: boolean;
+}
 
-import { ElButton, ElMessage, ElMessageBox } from 'element-plus';
+const props = withDefaults(defineProps<Props>(), {
+  idKey: 'id',
+  buttonText: '删除',
+  successMessage: '删除成功',
+  errorMessage: '删除失败',
+  type: 'danger',
+  confirm: true,
+});
 
-const props = withDefaults(
-  defineProps<{
-    apiFunction: (ids: Array<number | string>) => Promise<unknown>; // 删除API函数
-    confirmText?: string;
-    disabled?: boolean;
-    errorMessage?: string;
-    selectedItems: T[]; // 选中的行数据
-    successMessage?: string;
-  }>(),
-  {
-    disabled: false,
-    confirmText: '确定要删除选中的记录吗？此操作不可恢复！',
-    successMessage: '删除成功',
-    errorMessage: '删除失败',
-  },
-);
+const emit = defineEmits<{
+  (e: 'delete-success'): void;
+}>();
 
-const emit = defineEmits([
-  'before-delete',
-  'delete-success',
-  'delete-error',
-  'after-delete',
-]);
-const defaultText = ref('批量删除');
+async function handleDelete() {
+  let ids: (number | string)[] = [];
 
-// 执行删除操作
-const executeDelete = async () => {
-  const ids = props.selectedItems.map((item) => item.id);
+  if (props.rowItem) {
+    // 单条删除
+    ids = [props.rowItem[props.idKey]];
+  } else if (props.selectedItems && props.selectedItems.length > 0) {
+    // 批量删除
+    ids = props.selectedItems.map((item) => item[props.idKey]);
+  } else {
+    ElMessage.warning('请选择要删除的记录');
+    return;
+  }
 
   try {
-    emit('before-delete', ids);
-
-    // 调用传入的API函数
     await props.apiFunction(ids);
-
     ElMessage.success(props.successMessage);
-    emit('delete-success', ids);
+    emit('delete-success');
   } catch (error) {
+    console.error('删除失败:', error);
     ElMessage.error(props.errorMessage);
-    emit('delete-error', error);
-  } finally {
-    emit('after-delete', ids);
   }
-};
-
-// 显示确认对话框
-const showConfirm = async () => {
-  if (props.selectedItems.length === 0) return;
-
-  try {
-    await ElMessageBox.confirm(
-      `${props.confirmText}（共 ${props.selectedItems.length} 条）`,
-      '危险操作',
-      {
-        confirmButtonText: '确认删除',
-        cancelButtonText: '取消',
-        type: 'error',
-        center: true,
-        beforeClose: async (action: Action, _, done: () => void) => {
-          if (action === 'confirm') {
-            await executeDelete();
-          }
-          done();
-        },
-      },
-    );
-  } catch {
-    // 用户取消了操作
-  }
-};
-
-// 根据选中项数量更新按钮文本
-watch(
-  () => props.selectedItems.length,
-  (count) => {
-    defaultText.value = count > 0 ? `批量删除(${count})` : '批量删除';
-  },
-);
+}
 </script>
 
 <template>
-  <ElButton type="danger" :disabled="disabled" @click="showConfirm">
-    <slot>{{ defaultText }}</slot>
+  <ElPopconfirm
+    v-if="confirm"
+    title="确认删除所选记录？"
+    confirm-button-text="确认"
+    cancel-button-text="取消"
+    @confirm="handleDelete"
+  >
+    <template #reference>
+      <ElButton
+        :type="type"
+        :disabled="!rowItem && (!selectedItems || selectedItems.length === 0)"
+      >
+        {{ buttonText }}
+      </ElButton>
+    </template>
+  </ElPopconfirm>
+
+  <ElButton
+    v-else
+    :type="type"
+    @click="handleDelete"
+    :disabled="!rowItem && (!selectedItems || selectedItems.length === 0)"
+  >
+    {{ buttonText }}
   </ElButton>
 </template>

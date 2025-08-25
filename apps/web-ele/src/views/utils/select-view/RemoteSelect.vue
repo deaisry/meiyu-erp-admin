@@ -1,29 +1,31 @@
 <script lang="ts" setup>
-import { ref, onMounted, watch } from 'vue';
-import { ElSelect } from 'element-plus';
+import { onMounted, ref, watch } from 'vue';
+
+import { ElOption, ElSelect } from 'element-plus';
+
 import { requestClient } from '#/api/request';
 
 interface Props {
-  modelValue?: string | number;
-  url: string;               // 请求地址
-  labelKey?: string;         // 后端返回对象的 label 字段
-  valueKey?: string;         // 后端返回对象的 value 字段
-  placeholder?: string;      // 占位提示
-  allowClear?: boolean;
-  optionsCache?: boolean;    // 是否启用本地缓存
-  cacheKey?: string;         // 缓存 key（区分不同下拉）
+  modelValue?: number | string;
+  url: string; // 请求地址
+  labelKey?: string; // 后端返回对象的 label 字段
+  valueKey?: string; // 后端返回对象的 value 字段
+  placeholder?: string; // 占位提示
+  clearable?: boolean;
+  optionsCache?: boolean; // 是否启用本地缓存
+  cacheKey?: string; // 缓存 key（区分不同下拉）
 }
 
 const props = withDefaults(defineProps<Props>(), {
   labelKey: 'label',
   valueKey: 'value',
   placeholder: '请选择',
-  allowClear: true,
+  clearable: true,
   optionsCache: true,
 });
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: string | number | undefined): void;
+  (e: 'update:modelValue', value: number | string | undefined): void;
 }>();
 
 const options = ref<{ label: string; value: any }[]>([]);
@@ -41,8 +43,8 @@ async function fetchOptions() {
           options.value = cacheData;
           return;
         }
-      } catch (e) {
-        console.warn('RemoteSelect 缓存解析失败:', e);
+      } catch (error) {
+        console.warn('RemoteSelect 缓存解析失败:', error);
       }
     }
   }
@@ -71,10 +73,13 @@ async function fetchOptions() {
 
 onMounted(fetchOptions);
 
-watch(() => props.url, () => {
-  // url 变动时重新加载
-  fetchOptions();
-});
+watch(
+  () => props.url,
+  () => {
+    // url 变动时重新加载
+    fetchOptions();
+  },
+);
 
 function handleChange(val: any) {
   emit('update:modelValue', val);
@@ -84,12 +89,18 @@ function handleChange(val: any) {
 <template>
   <ElSelect
     v-bind="$attrs"
-    :options="options"
     :loading="loading"
     :placeholder="placeholder"
-    :allowClear="allowClear"
-    :value="modelValue"
-    @change="handleChange"
+    :clearable="clearable"
+    :model-value="modelValue"
+    @update:model-value="handleChange"
     style="width: 100%"
-  />
+  >
+    <ElOption
+      v-for="item in options"
+      :key="item.value"
+      :label="item.label"
+      :value="item.value"
+    />
+  </ElSelect>
 </template>

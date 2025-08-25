@@ -21,8 +21,8 @@ import ExtraDrawer from '#/views/human/info/drawer.vue';
 import BatchDelete from '#/views/utils/delete/BatchDelete.vue';
 import FileUploader from '#/views/utils/upload/FileUploader.vue';
 
-import DetailModal from './DetailModal.vue';
 import AddMaterialFormModal from './AddModal.vue';
+import DetailModal from './DetailModal.vue';
 
 const selectedItems = ref<MaterialPriceInfo[]>([]);
 console.log('[PricePage] 初始化选中项:', selectedItems.value);
@@ -37,8 +37,8 @@ const formOptions: VbenFormProps = {
       defaultValue: '',
       fieldName: 'materialId',
       label: '物料编号',
-      componentProps:{
-        width:300,
+      componentProps: {
+        width: 300,
       },
     },
     {
@@ -76,9 +76,8 @@ const formOptions: VbenFormProps = {
 const materialList = ref<{ cnt: number; materialType: string }[]>([]);
 const gridOptions: VxeGridProps<MaterialPriceInfo> = {
   checkboxConfig: {
-    highlight: true,
-    labelField: 'name',
-    checkField: 'selected',
+    reserve: true, // 翻页后仍然保留已勾选状态
+    highlight: true, // 高亮勾选行
   },
   columns: [
     { type: 'checkbox', width: 30 },
@@ -264,13 +263,24 @@ const [Drawer, drawerApi] = useVbenDrawer({
 // 详情弹窗
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: DetailModal,
-  class:'detail-modal'
+  class: 'detail-modal',
 });
 
-const [AddFormModal,addModalApi] = useVbenModal({
-  connectedComponent:AddMaterialFormModal,
-  class:'add-modal'
-})
+const [AddFormModal, addModalApi] = useVbenModal({
+  connectedComponent: AddMaterialFormModal,
+  class: 'add-modal',
+});
+
+// 监听表格勾选事件
+function onCheckboxChange({ records }: any) {
+  debugger;
+  console.log('onCheckboxChange');
+  selectedItems.value = records; // 每次勾选更新选中项
+}
+
+function onCheckboxAll({ records }: any) {
+  selectedItems.value = records; // 全选/取消全选时更新
+}
 
 // 打开详情弹窗
 function openModal(row: MaterialPriceInfo) {
@@ -281,8 +291,8 @@ function openModal(row: MaterialPriceInfo) {
     .open();
 }
 
-function AddModal(){
-  addModalApi.open()
+function AddModal() {
+  addModalApi.open();
 }
 
 // 打开编辑抽屉
@@ -293,28 +303,33 @@ function open(row: MaterialPriceInfo) {
     })
     .open();
 }
-
 </script>
 
 <template>
   <Page auto-content-height>
     <Drawer />
     <!-- <Overview :dept-list="materialList" /> -->
-    <Grid>
+    <Grid @checkbox-change="onCheckboxChange" @checkbox-all="onCheckboxAll">
       <template #toolbar-actions>
         <div style="display: flex; width: 100%">
           <FileUploader
             upload-url="/purchase/material/import"
             button-text="批量上传物料信息"
-            :multiple="true"
+            :multiple="false"
           />
-          <ElButton type="primary" style="margin-left: auto" @click="AddModal()"> 新增 </ElButton>
-          <AddFormModal/>
+          <ElButton
+            type="primary"
+            style="margin-left: auto"
+            @click="AddModal()"
+          >
+            新增
+          </ElButton>
+          <AddFormModal />
           <BatchDelete
             :selected-items="selectedItems"
             :api-function="batchDeleteHuman"
-            success-message="删除成功"
-            error-message="删除失败"
+            id-key="id"
+            button-text="批量删除"
             @delete-success="gridApi.reload()"
           />
         </div>
@@ -348,5 +363,4 @@ function open(row: MaterialPriceInfo) {
   /* 增加最大宽度限制，避免过宽 */
   max-width: 1200px;
 }
-
 </style>
